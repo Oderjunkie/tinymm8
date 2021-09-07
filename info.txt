@@ -1,0 +1,18 @@
+=== TOKENS ===
+IDENT		[a-zA-Z_][a-zA-Z0-9_]*
+NUMBER		[0-9]+
+TYPE		[ui](8|16|32|64)[\*&]*
+LPAREN		\(
+RPAREN		\)
+LBRACK		{
+RBRACK		}
+SEMI		;
+STATIC		static
+COMMA		,
+RETURN		return
+PLUS		\+
+MINUS		-
+TIMES		\*
+OVER		/
+RAISE		\*\*
+[ignored]	[\f\t\r\n]
