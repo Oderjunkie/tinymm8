@@ -91,6 +91,7 @@ args: args_req {/*std::cout << "args: args_req" << std::endl;*/}
 ;
 
 arg: type IDENT {/*std::cout << "arg: type IDENT" << std::endl;*/}
+;
 
 // program: expr ";" {}
 
