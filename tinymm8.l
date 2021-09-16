@@ -14,9 +14,8 @@ loc.step();
 
 %}
 
-\n+
+\n+                    loc.lines(yyleng); loc.step();
 [ \f\t]                loc.step();
-\r\n | \n              loc.lines(yyleng); loc.ste();
 "("                    return yy::parser::make_LPAREN(loc);
 ")"                    return yy::parser::make_RPAREN(loc);
 "{"                    return yy::parser::make_LBRACK(loc);
