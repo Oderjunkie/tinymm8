@@ -5,7 +5,7 @@
 %define api.token.prefix {token}
 %define api.parser.class {parser}
 %define api.token.constructor
-/* %define api.value.automove */
+ /* %define api.value.automove */
 %define api.token.raw
 %define parse.trace
 %define parse.error detailed
@@ -34,14 +34,15 @@
 %type<int> NUMBER
 %type<std::string> IDENT
 %nterm<typed_ident> type_and_ident
-%nterm<std::deque<typed_ident>> args_req args
-%nterm<std::shared_ptr<ast::Expression>> expr expr_no_comma
+%nterm<std::vector<typed_ident>> args_req args
+%nterm<ast::Expression> expr_no_comma expr stmt
+%nterm<ast::blck_stmt> blockstmt expr_args_req expr_args
 
 %code requires {
 #include <utility>
 #include <optional>
 #include <string>
-#include <deque>
+// #include <deque>
 typedef std::pair<std::optional<std::string>, std::string> typed_ident;
 #include "ast.hh"
 using std::string;
@@ -52,6 +53,8 @@ namespace driver {
 
 %code {
 #include "tinymm8.hh"
+using namespace ast;
+// using std::make_shared;
 }
 
 %start library;
@@ -67,74 +70,86 @@ decl: funcdecl {}
 ;
 
 funcdecl: type_and_ident[ident] "(" args ")" stmt {
-	auto const& [rettype, name] = std::move($ident);
+        auto const& [rettype, name] = $ident;
 	std::cout << "FUNCTION DEFINITION" << std::endl <<
 	          "return type: " << rettype.value_or("[void]") << std::endl <<
-	          "name: " << name << std::endl;
+	          "name: " << name << std::endl << "body: ";
+	$stmt.dump();
+	std::cout << std::endl;
 }
 ;
 
-ifstat[res]: "if" "(" expr[cond] ")" stmt[iftrue] { /* */ }
+/* ifstat[res]: "if" "(" expr[cond] ")" stmt[iftrue] { /* * / } */
 
-type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair(std::move($type),        std::move($name)); }
-|                                IDENT[name] { $res = std::pair(std::nullopt,            std::move($name)); }
+type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair($type,        $name); }
+|                                IDENT[name] { $res = std::pair(std::nullopt, $name); }
 ;
 
 expr[res]: expr_no_comma[val]                            { $res = $val; }
 |          expr[lhs] ","  expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::COMMA; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
 ;
 
-expr_no_comma[res]: expr_no_comma[lhs] "+"  expr_no_comma[rhs]                               { $res = std::make_shared<ast::Expression>(ast::Expression({std::make_shared<ast::Expression>($lhs), std::make_shared<ast::Expression>($rhs), ast::op::PLUS})); }
-|                   expr_no_comma[lhs] "-"  expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::MINUS; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "*"  expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::TIMES; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "/"  expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::OVER;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "%"  expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::MOD;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "="  expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::ASSGN; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "==" expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::EQ;    $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "!=" expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::NEQ;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "<"  expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::GT;    $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "<=" expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::GTE;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] ">"  expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::LT;    $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] ">=" expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::LTE;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "&"  expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::BAND;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "|"  expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::BOR;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "^"  expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::BXOR;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                                      "~"  expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::BNOT;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "&&" expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::LAND;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[lhs] "||" expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::LOR;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                                      "!"  expr_no_comma[rhs]                               { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::LNOT;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
-|                   expr_no_comma[cond] "?" expr_no_comma[iftrue] ":" expr_no_comma[iffalse] { /*;*/ }
-|                   "(" expr[val] ")"                                                        { /*$res = $val;*/ }
-|                   expr_no_comma[fnname] "(" expr_args[fnargs] ")"                          {  }
-|                   IDENT[id]                                                                { /*$res.exprtype = ast::type::IDENT; $res.ident = $id;*/  }
-|                   NUMBER[num]                                                              { /*$res.exprtype = ast::type::NUM;   $res.num   = $num;*/ }
-|                   blockstmt "}"                                                            {  }
+expr_no_comma[res]: expr_no_comma[lhs] "+"  expr_no_comma[rhs]                               {
+  $res = Expression(binop{&$lhs, &$rhs, op::PLUS });
+  //std::cout << "$res addr: " << (void const*) &$res << std::endl
+  //          << "$lhs addr: " << (void const*) &$lhs << std::endl
+  //          << "$rhs addr: " << (void const*) &$rhs << std::endl;
+  $res.debug();
+  // [FLAG TO CHECK PART OF CODE]
+  //$res.dump(); std::cout << std::endl;
+  //$lhs.dump(); std::cout << std::endl;
+  //$rhs.dump(); std::cout << std::endl;
+}
+|                   expr_no_comma[lhs] "-"  expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::MINUS}); }
+|                   expr_no_comma[lhs] "*"  expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::TIMES}); }
+|                   expr_no_comma[lhs] "/"  expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::OVER }); }
+|                   expr_no_comma[lhs] "%"  expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::MOD  }); }
+|                   expr_no_comma[lhs] "="  expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::ASSGN}); }
+|                   expr_no_comma[lhs] "==" expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::EQ   }); }
+|                   expr_no_comma[lhs] "!=" expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::NEQ  }); }
+|                   expr_no_comma[lhs] "<"  expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::LT   }); }
+|                   expr_no_comma[lhs] "<=" expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::LTE  }); }
+|                   expr_no_comma[lhs] ">"  expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::GT   }); }
+|                   expr_no_comma[lhs] ">=" expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::GTE  }); }
+|                   expr_no_comma[lhs] "&"  expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::BAND }); }
+|                   expr_no_comma[lhs] "|"  expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::BOR  }); }
+|                   expr_no_comma[lhs] "^"  expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::BXOR }); }
+|                                      "~"  expr_no_comma[val]                               { $res = Expression( unop{&$val,        op::BNOT }); }
+|                   expr_no_comma[lhs] "&&" expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::LAND }); }
+|                   expr_no_comma[lhs] "||" expr_no_comma[rhs]                               { $res = Expression(binop{&$lhs, &$rhs, op::LOR  }); }
+|                                      "!"  expr_no_comma[val]                               { $res = Expression( unop{&$val,        op::LNOT }); }
+|                   expr_no_comma[cond] "?" expr_no_comma[iftrue] ":" expr_no_comma[iffalse] {             /* uhhhh crap crap crap */             }
+|                   "(" expr[val] ")"                                                        { $res = $val;                                       }
+|                   expr_no_comma[fnn] "(" expr_args[fna] ")"                                { /*$res = Expression(binop{&$fnn, &Expression($fna), op::CALL });*/ }
+|                   IDENT[id]                                                                { $res = Expression($id);                            }
+|                   NUMBER[num]                                                              { $res = Expression($num);                           }
+|                   blockstmt[blck] "}"                                                      { $res = Expression($blck);                          }
 ;
 
-expr_args_req[res]: expr_args_req[self] "," expr_no_comma[el] { /*$res = $self;*/ }
+expr_args_req[res]: expr_args_req[self] "," expr_no_comma[el] { $res = $self; }
 |                   expr_no_comma[el]                         {  } 
 ;
 
-expr_args[res]: expr_args_req[self] { /*$res = $self;*/ }
-|               %empty              { /*$res = {};*/ }
+expr_args[res]: expr_args_req[self] { $res = $self; }
+|               %empty              { $res = {}; }
 ;
 
-stmt[res]: expr[val] ";"             { /*$res.stattype = ast::type::EMPTY;*/ }
-|          ifstat[val]               { /*$res = $val;*/ }
-|          "return" expr[retval] ";" { /*$res.stattype = ast::type::EMPTY;*/ }
+stmt[res]: expr[val] ";"             { $res = $val; }
+/*|          ifstat[val]               { /*$res = $val;* }*/
+/*|          "return" expr[retval] ";" { /*$res.stattype = ast::type::EMPTY;* }*/
 |          "return" ";"              { /*$res.stattype = ast::type::EMPTY;*/ }
 ;
 
-blockstmt[res]: blockstmt[self] stmt[inst] { /* $res = $self; $res.push_front($inst);*/ }
-|               "{"                        { /* $res = {};                           */ }
+blockstmt[res]: blockstmt[self] stmt[inst] { $res = $self; $res.push_back($inst); }
+|               "{"                        { $res = {};                           }
 ;
 
-args_req[res]: args_req[self] "," type_and_ident[el] { $res = $self; $res.push_front($el); }
-|              type_and_ident[el]                    { $res = {};    $res.push_front($el); }
+args_req[res]: args_req[self] "," type_and_ident[el] { $res = $self; $res.push_back($el); }
+|              type_and_ident[el]                    { $res = {};    $res.push_back($el); }
 ;
 
 args[res]: args_req[val] { $res = $val; }
-|          %empty        { $res = {};    }
+|          %empty        { $res = {};   }
 ;
 
 %%

@@ -1,16 +1,17 @@
 LEXFLAGS ?=
 YACCFLAGS ?=
-GCCFLAGS ?= -std=c++20
+GCCFLAGS ?=
+GCCFLAGS += -std=c++20
 
-all : reset compiler
+all : reset parser lexer compiler
 
-lexer : parser *.l
+lexer : parser tinymm8.l
 	flex $(LEXFLAGS) -o lexer.cc *.l
 
-parser : *.y
+parser : tinymm8.y
 	bison $(YACCFLAGS) -o parser.cc -d *.y
 
-compiler : parser lexer
+compiler : tinymm8.cc tinymm8.hh ast.cc ast.hh
 	g++ $(GCCFLAGS) -o compiler lexer.cc parser.cc tinymm8.cc ast.cc
 
 reset :
