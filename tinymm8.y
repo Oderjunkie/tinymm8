@@ -17,7 +17,7 @@
 %token COMMA "," RAISE "**" TIMES "*" OVER "/" PLUS "+" MINUS "-" FOVER "//" 
 %token ASSGN "=" EQ "==" NEQ "!=" GT ">" GTE ">=" LT "<" LTE "<=" MOD "%"
 %token BAND "&" BOR "|" BXOR "^" LAND "&&" LOR "||" LNOT "!" BNOT "~"
-%token TERN_IF "?" TERN_ELSE ":"
+%token TERN_IF "?" TERN_ELSE ":" INC "++" DEC "--"
 %left "("
 %right "!" "~" DEREF ADDROF
 %left "*" "/" "%"
