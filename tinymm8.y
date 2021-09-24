@@ -112,7 +112,6 @@ expr_no_comma[res]: expr_no_comma[lhs] "+"  expr_no_comma[rhs]                  
 |                   expr_no_comma[fnn] "(" expr_args[fna] ")"                         { $res = Expression(binop{&$fnn,
 														new Expression($fna), op::CALL });  }
 |                   "(" expr[val] ")"                                                 { $res = $val;                                                }
-|                   ifstmt[val]                                                       { $res = $val;                                                }
 |                   IDENT[id]                                                         { $res = Expression($id);                                     }
 |                   NUMBER[num]                                                       { $res = Expression($num);                                    }
 |                   blockstmt[blck] "}"                                               { $res = Expression($blck);                                   }
