@@ -42,7 +42,6 @@
 #include <utility>
 #include <optional>
 #include <string>
-// #include <deque>
 typedef std::pair<std::optional<std::string>, std::string> typed_ident;
 #include "ast.hh"
 using std::string;
@@ -54,7 +53,6 @@ namespace driver {
 %code {
 #include "tinymm8.hh"
 using namespace ast;
-// using std::make_shared;
 }
 
 %start library;
@@ -86,10 +84,10 @@ type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair($type,        $n
 ;
 
 expr[res]: expr_no_comma[val]                            { $res = $val; }
-|          expr[lhs] ","  expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::COMMA; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] ","  expr[rhs]                      { $res = Expression( binop{&$lhs,        &$rhs, op::PLUS }); }
 ;
 
-expr_no_comma[res]: expr_no_comma[lhs] "+"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::PLUS }); }
+expr_no_comma[res]: expr_no_comma[lhs] "+"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::PLUS  }); }
 |                   expr_no_comma[lhs] "-"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::MINUS }); }
 |                   expr_no_comma[lhs] "*"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::TIMES }); }
 |                   expr_no_comma[lhs] "/"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::OVER  }); }

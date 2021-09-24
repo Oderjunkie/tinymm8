@@ -86,13 +86,6 @@ std::string op2str(op opr) {
   return "[invalid]";
 }
 
-/*void Expression::debug() {
-	std::cout << "ths addr: \e[36m" << (void const*) this <<
-	std::endl << "\e[mlhs addr: \e[36m" << (void const*) this->binopr.lhs <<
-	std::endl << "\e[mrhs addr: \e[36m" << (void const*) this->binopr.rhs << "\e[m" <<
-	std::endl;
-}*/
-
 void Expression::dump() {
 	switch (this->type) {
 		case exprtype::NUM:
@@ -110,21 +103,10 @@ void Expression::dump() {
 			std::cout << "<" << this->ident << ">";
 			return;
 		case exprtype::BINOP:
-		  /*if (this == this->binopr.lhs) {
-			        std::cout << std::endl << "\e[31mERROR: EXPR->BINOPR.LHS == EXPR\e[m" <<
-				std::endl << "ths addr: \e[36m" << (void const*) this <<
-				std::endl << "\e[mlhs addr: \e[36m" << (void const*) this->binopr.rhs <<
-				std::endl << "\e[mrhs addr: \e[36m" << (void const*) this->binopr.rhs << "\e[m" <<
-				std::endl;
-				exit(1);
-				}*/
-			//this->binopr.lhs->dump();
 			this->binopr.lhs->dump();
 			std::cout << " " << op2str(this->binopr.opr) << " ";
 			this->binopr.rhs->dump();
 			return;
-		        //std::cout << "[binop]";
-			//return;
 		case exprtype::TERNOP:
 		        this->ternopr.lhs->dump();
 			std::cout << " ? ";
@@ -135,7 +117,6 @@ void Expression::dump() {
 		case exprtype::UNOP:
 		        std::cout << op2str(this->unopr.opr);
 			this->unopr.val->dump();
-		        // std::cout << "[unop]";
 			return;
 		case exprtype::NONE:
 			std::cout << "[null]";

@@ -33,9 +33,6 @@ namespace ast {
 	enum class exprtype {
 	                NONE, NUM, IDENT, TERNOP, BINOP, UNOP, BODY, RETURN
 	};
-  /*namespace tags {
-	  struct RETURN {};
-        }*/
 	class Expression : public Node {
 		protected:
 			exprtype type;
