@@ -84,7 +84,7 @@ type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair($type,        $n
 ;
 
 expr[res]: expr_no_comma[val]                            { $res = $val; }
-|          expr[lhs] ","  expr[rhs]                      { $res = Expression( binop{&$lhs,        &$rhs, op::PLUS }); }
+|          expr[lhs] ","  expr[rhs]                      { $res = Expression( binop{&$lhs, &$rhs, op::COMMA }); }
 ;
 
 expr_no_comma[res]: expr_no_comma[lhs] "+"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::PLUS  }); }
