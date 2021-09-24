@@ -4,6 +4,7 @@
 #include "tinymm8.hh"
 #include "parser.hh"
 #include <string>
+#include <cstdlib>
 
 %}
 %%
@@ -47,7 +48,18 @@ loc.step();
 "!"                    return yy::parser::make_LNOT(loc);
 "?"                    return yy::parser::make_TERN_IF(loc);
 ":"                    return yy::parser::make_TERN_ELSE(loc);
-[0-9]+                 return yy::parser::make_NUMBER(1, loc);
+0x[0-9A-Fa-f]*         {
+        char* endptr;
+        return yy::parser::make_NUMBER(strtol(&yytext[2], &endptr, 16), loc);
+}
+[1-9][0-9]*            {
+        char* endptr;
+        return yy::parser::make_NUMBER(strtol(yytext, &endptr, 10), loc);
+}
+0[0-7]*                {
+        char* endptr;
+        return yy::parser::make_NUMBER(strtol(&yytext[1], &endptr, 8), loc);
+}
 [a-zA-Z_][a-zA-Z0-9_]* {
 	std::string str(yytext, std::find(yytext, &yytext[256], '\0'));
 	return yy::parser::make_IDENT(yytext, loc);

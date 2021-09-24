@@ -125,10 +125,11 @@ expr_args[res]: expr_args_req[self] { $res = $self; }
 |               %empty              { $res = {};    }
 ;
 
-stmt[res]: expr[val] ";"             { $res = $val; }
-|          ifstmt[val]               { $res = $val; }
+stmt[res]: expr[val] ";"             { $res = $val;                                }
+//|          blockstmt[blck] "}"       { $res = Expression($blck);                   }
+|          ifstmt[val]               { $res = $val;                                }
 |          "return" expr[retval] ";" { $res = Expression(new Expression($retval)); }
-|          "return" ";"              { $res = Expression(new Expression()); }
+|          "return" ";"              { $res = Expression(new Expression());        }
 ;
 
 blockstmt[res]: blockstmt[self] stmt[inst] { $res = $self; $res.push_back(new Expression($inst)); }
