@@ -3,24 +3,40 @@
 
 using namespace ast; // Fight me =P
 
-
-
-Expression::Expression()                         : type(exprtype::NONE)                  {               }
-Expression::Expression(int const &num)           : type(exprtype::NUM),   num(num)       {               }
-Expression::Expression(blck_stmt const &body)    : type(exprtype::BODY),  body(body)     {               }
-Expression::Expression(std::string const &ident) : type(exprtype::IDENT), ident(ident)   {               }
-Expression::Expression(ternop const &opr)        : type(exprtype::TERNOP), ternopr(opr)  {               }
-Expression::Expression(binop const &opr)         : type(exprtype::BINOP), binopr(opr)    {               }
-Expression::Expression(unop const &opr)          : type(exprtype::UNOP),  unopr(opr)     {               }
-Expression::Expression(Expression const &expr)                                           { *this = expr; }
+Expression::Expression()                         : type(exprtype::NONE)                 {                              }
+Expression::Expression(int const &num)           : type(exprtype::NUM),    num(num)     {                              }
+Expression::Expression(blck_stmt const &body)    : type(exprtype::BODY),   body(body)   {                              }
+Expression::Expression(std::string const &ident) : type(exprtype::IDENT),  ident(ident) {                              }
+Expression::Expression(ternop const &opr)        : type(exprtype::TERNOP), ternopr(opr) {                              }
+Expression::Expression(binop const &opr)         : type(exprtype::BINOP),  binopr(opr)  {                              }
+Expression::Expression(unop const &opr)          : type(exprtype::UNOP),   unopr(opr)   {                              }
+Expression::Expression(Expression const *expr)   : type(exprtype::RETURN)               { ret = new Expression(*expr); }
+Expression::Expression(Expression const &expr)                                          { *this = expr;                }
 Expression::~Expression() = default;
+
 Expression& Expression::operator= (Expression const &expr) {
 	switch (this->type = expr.type) {
-		case exprtype::NUM:   this->num    = expr.num;               break;
-		case exprtype::BODY:  this->body   = expr.body;              break;
-		case exprtype::IDENT:
-		   this->ident  = expr.ident;
+		case exprtype::NUM:
+		   this->num = expr.num;
 		   break;
+		case exprtype::BODY:
+		   this->body = expr.body;
+		   break;
+		case exprtype::IDENT:
+		   this->ident = expr.ident;
+		   break;
+	        case exprtype::RETURN:
+		   this->ret = expr.ret;
+		   break;
+		case exprtype::TERNOP:
+		  delete this->ternopr.lhs;
+		  delete this->ternopr.mhs;
+		  delete this->ternopr.rhs;
+		  this->ternopr.lhs = new Expression(std::move(*expr.ternopr.lhs));
+		  this->ternopr.mhs = new Expression(std::move(*expr.ternopr.mhs));
+		  this->ternopr.rhs = new Expression(std::move(*expr.ternopr.rhs));
+		  this->ternopr.opr = expr.ternopr.opr;
+		  break;
 		case exprtype::BINOP:
 		  delete this->binopr.lhs;
 		  delete this->binopr.rhs;
@@ -43,7 +59,8 @@ Expression& Expression::operator= (Expression const &expr) {
 std::string op2str(op opr) {
   switch (opr) {
     case op::COMMA: return ",";
-    case op::TIMES: return "*";
+    case op::TIMES:
+    case op::DEREF: return "*";
     case op::OVER:  return "/";
     case op::PLUS:  return "+";
     case op::MINUS: return "-";
@@ -56,7 +73,8 @@ std::string op2str(op opr) {
     case op::LT:    return "<";
     case op::LTE:   return "<=";
     case op::MOD:   return "%";
-    case op::BAND:  return "&";
+    case op::BAND:
+    case op::ADROF: return "&";
     case op::BOR:   return "|";
     case op::BXOR:  return "^";
     case op::LAND:  return "&&";
@@ -81,13 +99,17 @@ void Expression::dump() {
 			std::cout << this->num;
 			return;
 		case exprtype::BODY:
-		        std::cout << "[body]";
+			std::cout << "{ ";
+			std::for_each(this->body.begin(), this->body.end(), [](Expression* expr) {
+				expr->dump();
+				std::cout << "; ";
+		        });
+			std::cout << "}";
 			return;
 		case exprtype::IDENT:
 			std::cout << "<" << this->ident << ">";
 			return;
 		case exprtype::BINOP:
-		        
 		  /*if (this == this->binopr.lhs) {
 			        std::cout << std::endl << "\e[31mERROR: EXPR->BINOPR.LHS == EXPR\e[m" <<
 				std::endl << "ths addr: \e[36m" << (void const*) this <<
@@ -103,10 +125,17 @@ void Expression::dump() {
 			return;
 		        //std::cout << "[binop]";
 			//return;
+		case exprtype::TERNOP:
+		        this->ternopr.lhs->dump();
+			std::cout << " ? ";
+		        this->ternopr.mhs->dump();
+			std::cout << " : ";
+		        this->ternopr.rhs->dump();
+			return;
 		case exprtype::UNOP:
-			//std::cout << this->unopr.opr;
-			//this->unopr.val->dump();
-		        std::cout << "[unop]";
+		        std::cout << op2str(this->unopr.opr);
+			this->unopr.val->dump();
+		        // std::cout << "[unop]";
 			return;
 		case exprtype::NONE:
 			std::cout << "[null]";

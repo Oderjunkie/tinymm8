@@ -10,7 +10,7 @@ namespace ast {
 		COMMA, TIMES, OVER, PLUS, MINUS, FOVER,
 		ASSGN, EQ, NEQ, GT, GTE, LT, LTE, MOD,
 		BAND, BOR, BXOR, LAND, LOR, LNOT, BNOT,
-		CALL, TERNARY
+		CALL, TERN, DEREF, ADROF
 	};
 	class Node {};
 	class Expression;
@@ -29,10 +29,13 @@ namespace ast {
 			Expression* val;
 			op opr;
 	};
-	using blck_stmt = std::vector<Expression>;
+	using blck_stmt = std::vector<Expression*>;
 	enum class exprtype {
-	        NONE, NUM, IDENT, TERNOP, BINOP, UNOP, BODY
+	                NONE, NUM, IDENT, TERNOP, BINOP, UNOP, BODY, RETURN
 	};
+  /*namespace tags {
+	  struct RETURN {};
+        }*/
 	class Expression : public Node {
 		protected:
 			exprtype type;
@@ -42,6 +45,7 @@ namespace ast {
 			std::string ident;
 			int num;
 			blck_stmt body;
+	                Expression* ret;
 		public:
 			Expression();
 			Expression(int const &num);
@@ -51,9 +55,9 @@ namespace ast {
 			Expression(binop const &opr);
 			Expression(unop const &opr);
 			Expression(Expression const &expr);
+	                Expression(Expression const *expr);
 			~Expression();
-	                Expression& operator = (Expression const &expr);
+	                Expression &operator = (Expression const &expr);
 			void dump();
-			void debug();
 	};
 }

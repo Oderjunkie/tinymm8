@@ -25,7 +25,14 @@ int main(int argc, char** argv) {
 			drv.trace_parsing = true;
 		else if (argv[i] == std::string ("-s"))
 			drv.trace_scanning = true;
-		else if (!drv.parse (argv[i]))
+	        else if (argv[i] == std::string ("-h")) {
+		        std::cout << "USAGE" <<
+		        std::endl << "-----" <<
+			std::endl << "-d    Trace the parser." <<
+			std::endl << "-s    Trace the scan." <<
+			std::endl << "-h    Display this message." <<
+			std::endl << std::endl; return 0;
+		} else if (!drv.parse (argv[i]))
 			std::cout << drv.res << std::endl;
 		else
 			res = 1;

@@ -16,6 +16,7 @@ loc.step();
 
 \n+                    loc.lines(yyleng); loc.step();
 [ \f\t]                loc.step();
+"//".*                 loc.lines(1); loc.step();
 "("                    return yy::parser::make_LPAREN(loc);
 ")"                    return yy::parser::make_RPAREN(loc);
 "{"                    return yy::parser::make_LBRACK(loc);
@@ -30,7 +31,6 @@ loc.step();
 "*"                    return yy::parser::make_TIMES(loc);
 "/"                    return yy::parser::make_OVER(loc);
 "%"                    return yy::parser::make_MOD(loc);
-"//"                   return yy::parser::make_FOVER(loc);
 "="                    return yy::parser::make_ASSGN(loc);
 "=="                   return yy::parser::make_EQ(loc);
 "!="                   return yy::parser::make_NEQ(loc);
