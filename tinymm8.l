@@ -48,7 +48,10 @@ loc.step();
 "||"                   return yy::parser::make_LOR(loc);
 "!"                    return yy::parser::make_LNOT(loc);
 [0-9]+                 return yy::parser::make_NUMBER(1, loc); // std::cout << "NUMBER[\"" << yytext << "\"]" << std::endl; std::stoi(std::string())
-[a-zA-Z_][a-zA-Z0-9_]* return yy::parser::make_IDENT(yytext, loc); // std::cout << "IDENT[\"" << yytext << "\"]" << std::endl;
+[a-zA-Z_][a-zA-Z0-9_]* {
+	std::string str(yytext, std::find(yytext, &yytext[256], '\0'));
+	return yy::parser::make_IDENT(yytext, loc);
+}
 .                      throw  yy::parser::syntax_error(loc, "lex-time error: invalid character: \"" + std::string(yytext) + "\"");
 <<EOF>>                return yy::parser::make_YYEOF(loc);
 %%

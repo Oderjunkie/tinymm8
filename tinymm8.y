@@ -31,7 +31,7 @@
 %right ASSGN
 %left COMMA
 %type<int> NUMBER
-%type<char*> IDENT
+%type<std::string> IDENT
 
 /* %type<expression> expr_no_comma expr */
 %code top {
