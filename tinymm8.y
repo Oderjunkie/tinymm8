@@ -30,6 +30,7 @@
 using std::string;
 using std::vector;
 #include "tinymm8.hh"
+// #include "parser.hh"
 // template <typename T> void YY_DO_BEFORE_ACTION(T...) { return; }
 // template <typename T> void YY_NEW_FILE(T...) { return; }
 // int yyerror();
@@ -71,5 +72,5 @@ int main(int argc, char** argv) {
 	return parse();
 }
 
-#include "lexer.hh"
+// #include "lexer.hh"
 // #include <FlexLexer.h>
