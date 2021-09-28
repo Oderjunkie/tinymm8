@@ -42,7 +42,7 @@ void driver::driver::scan_begin() {
 	if (file.empty() || file == "-")
 		yyin = stdin;
 	else if (!(yyin = fopen (file.c_str (), "r"))) {
-		std::cerr << "cannot open " << file << ": " << strerror(errno) << std::endl;
+		std::cerr << "tinymm8: " << file << ": " << strerror(errno) << std::endl;
 		exit(EXIT_FAILURE);
 	}
 }
