@@ -14,7 +14,7 @@
 %right RAISE
 %left TIMES OVER
 %left PLUS MINUS
-%type<string> IDENT
+%type<std::string> IDENT
 %type<int> NUMBER
 
 /* %type<expression> expr_no_comma expr */
@@ -29,6 +29,7 @@
 #include <vector>
 using std::string;
 using std::vector;
+#include "tinymm8.hh"
 // template <typename T> void YY_DO_BEFORE_ACTION(T...) { return; }
 // template <typename T> void YY_NEW_FILE(T...) { return; }
 // int yyerror();
@@ -51,7 +52,7 @@ expr_no_comma: expr_no_comma "+" expr_no_comma
 |              expr_no_comma "/" expr_no_comma
 |              expr_no_comma "**" expr_no_comma { /*$$ = 1*/ }
 |              "(" expr ")"                     { /*$$ = $2;*/ }
-|              IDENT                            { /*$$ = $1;*/ }
+|              IDENT                            { /*$$ = $1;*/ std::cout << "IDENTIFIER DETECTED: " << $1 << std::endl; }
 |              NUMBER                           { /*$$ = $1;*/ }
 ;
 
