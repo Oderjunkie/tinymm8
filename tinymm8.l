@@ -16,7 +16,7 @@ loc.step();
 
 \n+        
  /* [ui](8|16|32|64)[\*&]* return TYPE; */
-[\f\t]                 loc.step();
+[ \f\t]                loc.step();
 \r\n | \n              loc.lines(yyleng); loc.ste();
 "("                    return yy::parser::make_LPAREN(loc);
 ")"                    return yy::parser::make_RPAREN(loc);
