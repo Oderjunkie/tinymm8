@@ -69,7 +69,7 @@ decl: funcdecl {/*std::cout << "decl: funcdecl" << std::endl;*/}
 // | vardecl
 ;
 
-funcdecl: type IDENT "(" args ")" expr {/*std::cout << "funcdecl: type IDENT \"(\" args \")\" expr" << std::endl;*/}
+funcdecl: /*type*/ IDENT "(" args ")" expr {/*std::cout << "funcdecl: type IDENT \"(\" args \")\" expr" << std::endl;*/}
 ;
 
 type: IDENT             {/*std::cout << "type: IDENT" << std::endl;*/}
