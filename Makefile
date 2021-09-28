@@ -1,7 +1,7 @@
 all : reset compiler
 
 lexer : *.l
-	flex --header-file=lexer.hh -o lexer.cc *.l
+	flex -o lexer.cc *.l
 
 parser : *.y
 	bison -o parser.cc -d *.y
