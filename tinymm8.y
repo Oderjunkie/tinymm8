@@ -1,10 +1,11 @@
 %require "3.7.6"
 %locations
 %language "c++"
-%define api.token.constructor
+%define api.value.type variant
 %define api.token.prefix {token}
 %define api.parser.class {parser}
-%define api.value.type variant
+%define api.token.constructor
+%define api.value.automove
 %define api.token.raw
 %define parse.trace
 %define parse.error detailed
@@ -32,6 +33,7 @@
 %left COMMA
 %type<int> NUMBER
 %type<std::string> IDENT
+%nterm<typed_ident> type_and_ident
 
 /* %type<expression> expr_no_comma expr */
 %code top {
@@ -46,6 +48,7 @@
 %code requires {
 #include <string>
 #include <vector>
+typedef std::pair<std::optional<std::string>, std::string> typed_ident;
 using std::string;
 using std::vector;
 namespace driver {
