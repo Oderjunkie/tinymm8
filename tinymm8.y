@@ -83,10 +83,10 @@ decl: funcdecl {/*std::cout << "decl: funcdecl" << std::endl;*/}
 ;
 
 funcdecl: /*type*/ IDENT "(" args ")" expr {/*std::cout << "funcdecl: type IDENT \"(\" args \")\" expr" << std::endl;*/}
+type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair($type,        $name); }
+|                                IDENT[name] { $res = std::pair(std::nullopt, $name); }
 ;
 
-type: IDENT             {/*std::cout << "type: IDENT" << std::endl;*/}
-|     %empty            {/*std::cout << "type: %""empty" << std::endl;*/}
 ;
 
 expr: "return" expr ";" {/*std::cout << "expr: \"return\" expr \";\"" << std::endl;*/}
