@@ -6,6 +6,12 @@
 %define api.token.prefix {token}
 %define api.parser.class {parser}
 %define api.value.type variant
+%define api.token.raw
+%define parse.trace
+%define parse.error detailed
+%define parse.lac full
+%param { driver::driver& drv }
+%printer { yyo << $$; } <*>;
 %token IDENT NUMBER
 %token LPAREN "(" RPAREN ")" LBRACK "{" RBRACK "}"
 %token SEMI ";" STATIC "static" RETURN "return"
@@ -23,6 +29,9 @@
 // extern int yylex();
 // virtual int yyFlexLexer::yylex();
 // #define yylex yyFlexLexer::yylex()
+// #include "tinymm8.hh"
+// int yylex();
+// #include "any.hh"
 }
 
 %code requires {
@@ -30,7 +39,9 @@
 #include <vector>
 using std::string;
 using std::vector;
-#include "tinymm8.hh"
+namespace driver {
+    class driver;
+}
 // #include "parser.hh"
 // template <typename T> void YY_DO_BEFORE_ACTION(T...) { return; }
 // template <typename T> void YY_NEW_FILE(T...) { return; }
@@ -42,35 +53,68 @@ using std::vector;
 	vector<expression> arrv;
 } expression */
 }
-%%
 
-program: expr ";" {
-	std::cout << "PROG PARSEd" << std::endl;
+%code {
+#include "tinymm8.hh"
 }
 
-expr_no_comma: expr_no_comma "+" expr_no_comma
-|              expr_no_comma "-" expr_no_comma
-|              expr_no_comma "*" expr_no_comma
-|              expr_no_comma "/" expr_no_comma
-|              expr_no_comma "**" expr_no_comma { /*$$ = 1*/ }
-|              "(" expr ")"                     { /*$$ = $2;*/ }
-|              IDENT                            { /*$$ = $1;*/ std::cout << "IDENTIFIER DETECTED: " << $1 << std::endl; }
-|              NUMBER                           { /*$$ = $1;*/ }
+%%
+%start library;
+
+library: library decl {std::cout << "library: library decl" << std::endl;}
+|        %empty       {std::cout << "library: %""empty" << std::endl;}
 ;
 
-expr: expr_no_comma
-|     expr "," expr
+decl: funcdecl {std::cout << "decl: funcdecl" << std::endl;}
+// | vardecl
 ;
+
+funcdecl: type IDENT "(" args ")" expr {std::cout << "funcdecl: type IDENT \"(\" args \")\" expr" << std::endl;}
+;
+
+type: IDENT             {std::cout << "type: IDENT" << std::endl;}
+|     %empty            {std::cout << "type: %""empty" << std::endl;}
+;
+
+expr: "return" expr ";" {std::cout << "expr: \"return\" expr \";\"" << std::endl;}
+|     IDENT             {std::cout << "expr: IDENT" << std::endl;}
+|     NUMBER            {std::cout << "expr: NUMBER" << std::endl;}
+;
+
+args_req: args_req "," arg {std::cout << "args_req: args_req \",\" arg" << std::endl;}
+|         arg              {std::cout << "args_req: arg" << std::endl;}
+;
+
+args: args_req {std::cout << "args: args_req" << std::endl;}
+|     %empty   {std::cout << "args: %""empty" << std::endl;}
+;
+
+arg: type IDENT {std::cout << "arg: type IDENT" << std::endl;}
+
+// program: expr ";" {}
+
+// expr_no_comma: expr_no_comma "+" expr_no_comma
+// |              expr_no_comma "-" expr_no_comma
+// |              expr_no_comma "*" expr_no_comma
+// |              expr_no_comma "/" expr_no_comma
+// |              expr_no_comma "**" expr_no_comma
+// |              "(" expr ")"                     { $$ = $2; }
+// |              IDENT                            { $$ = $1; }
+// |              NUMBER                           { $$ = $1; }
+// ;
+
+// expr: expr_no_comma          { $$ = $1; }
+// |     expr "," expr_no_comma
+// ;
 
 %%
 
-void yy::parser::error(const std::string& err) {
-	std::cerr << err << std::endl;
-}
+/*namespace yy {
+    parser::symbol_type yylex();
+}*/
 
-int main(int argc, char** argv) {
-	yy::parser parse;
-	return parse();
+void yy::parser::error(const location_type& loc, const std::string& err) {
+	std::cerr << loc << std::endl << err << std::endl;
 }
 
 // #include "lexer.hh"
