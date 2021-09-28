@@ -57,38 +57,40 @@ namespace driver {
 #include "tinymm8.hh"
 }
 
-%%
 %start library;
 
-library: library decl {std::cout << "library: library decl" << std::endl;}
-|        %empty       {std::cout << "library: %""empty" << std::endl;}
+%%
+
+library: library decl {/*std::cout << "library: library decl" << std::endl;*/}
+|        %empty       {/*std::cout << "library: %""empty" << std::endl;*/}
 ;
 
-decl: funcdecl {std::cout << "decl: funcdecl" << std::endl;}
+decl: funcdecl {/*std::cout << "decl: funcdecl" << std::endl;*/}
 // | vardecl
 ;
 
-funcdecl: type IDENT "(" args ")" expr {std::cout << "funcdecl: type IDENT \"(\" args \")\" expr" << std::endl;}
+funcdecl: type IDENT "(" args ")" expr {/*std::cout << "funcdecl: type IDENT \"(\" args \")\" expr" << std::endl;*/}
 ;
 
-type: IDENT             {std::cout << "type: IDENT" << std::endl;}
-|     %empty            {std::cout << "type: %""empty" << std::endl;}
+type: IDENT             {/*std::cout << "type: IDENT" << std::endl;*/}
+|     %empty            {/*std::cout << "type: %""empty" << std::endl;*/}
 ;
 
-expr: "return" expr ";" {std::cout << "expr: \"return\" expr \";\"" << std::endl;}
-|     IDENT             {std::cout << "expr: IDENT" << std::endl;}
-|     NUMBER            {std::cout << "expr: NUMBER" << std::endl;}
+expr: "return" expr ";" {/*std::cout << "expr: \"return\" expr \";\"" << std::endl;*/}
+|     IDENT             {/*std::cout << "expr: IDENT" << std::endl;*/}
+|     NUMBER            {/*std::cout << "expr: NUMBER" << std::endl;*/}
+|     %empty            {/*std::cout << "expr: %""empty" << std::endl;*/}
 ;
 
-args_req: args_req "," arg {std::cout << "args_req: args_req \",\" arg" << std::endl;}
-|         arg              {std::cout << "args_req: arg" << std::endl;}
+args_req: args_req "," arg {/*std::cout << "args_req: args_req \",\" arg" << std::endl;*/}
+|         arg              {/*std::cout << "args_req: arg" << std::endl;*/}
 ;
 
-args: args_req {std::cout << "args: args_req" << std::endl;}
-|     %empty   {std::cout << "args: %""empty" << std::endl;}
+args: args_req {/*std::cout << "args: args_req" << std::endl;*/}
+|     %empty   {/*std::cout << "args: %""empty" << std::endl;*/}
 ;
 
-arg: type IDENT {std::cout << "arg: type IDENT" << std::endl;}
+arg: type IDENT {/*std::cout << "arg: type IDENT" << std::endl;*/}
 
 // program: expr ";" {}
 
