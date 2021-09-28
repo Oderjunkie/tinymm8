@@ -1,7 +1,6 @@
 %require "3.7.6"
 %locations
 %language "c++"
-%skeleton "lalr1.cc"
 %define api.token.constructor
 %define api.token.prefix {token}
 %define api.parser.class {parser}
