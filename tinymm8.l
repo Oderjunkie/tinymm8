@@ -1,23 +1,27 @@
-%option c++ noyywrap nounput noinput batch debug 
+%option noyywrap nounput noinput batch 
 %{
+
+#include "tinymm8.hh"
 #include "parser.hh"
+#include <string>
+
 %}
 %%
  /* [ui](8|16|32|64)[\*&]* return TYPE; */
 [\f\t\r\n]+
-"("                    return yy::parser::token::token_kind_type::tokenLPAREN;
-")"                    return yy::parser::token::token_kind_type::tokenRPAREN;
-"{"                    return yy::parser::token::token_kind_type::tokenLBRACK;
-"}"                    return yy::parser::token::token_kind_type::tokenRBRACK;
-";"                    return yy::parser::token::token_kind_type::tokenSEMI;
-"static"               return yy::parser::token::token_kind_type::tokenSTATIC;
-","                    return yy::parser::token::token_kind_type::tokenCOMMA;
-"return"               return yy::parser::token::token_kind_type::tokenRETURN;
-"+"                    return yy::parser::token::token_kind_type::tokenPLUS;
-"-"                    return yy::parser::token::token_kind_type::tokenMINUS;
-"*"                    return yy::parser::token::token_kind_type::tokenTIMES;
-"/"                    return yy::parser::token::token_kind_type::tokenOVER;
-"**"                   return yy::parser::token::token_kind_type::tokenRAISE;
-[0-9]+                 return yy::parser::token::token_kind_type::tokenNUMBER;
-[a-zA-Z_][a-zA-Z0-9_]* return yy::parser::token::token_kind_type::tokenIDENT;
+"("                    return yy::parser::make_LPAREN();
+")"                    return yy::parser::make_RPAREN();
+"{"                    return yy::parser::make_LBRACK();
+"}"                    return yy::parser::make_RBRACK();
+";"                    return yy::parser::make_SEMI();
+"static"               return yy::parser::make_STATIC();
+","                    return yy::parser::make_COMMA();
+"return"               return yy::parser::make_RETURN();
+"+"                    return yy::parser::make_PLUS();
+"-"                    return yy::parser::make_MINUS();
+"*"                    return yy::parser::make_TIMES();
+"/"                    return yy::parser::make_OVER();
+"**"                   return yy::parser::make_RAISE();
+[0-9]+                 return yy::parser::make_NUMBER(1);
+[a-zA-Z_][a-zA-Z0-9_]* return yy::parser::make_IDENT("thing");
 %%
