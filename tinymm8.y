@@ -21,7 +21,7 @@
 %right RAISE
 %left TIMES OVER
 %left PLUS MINUS
-%type<std::string> IDENT
+%type<char*> IDENT
 %type<int> NUMBER
 
 /* %type<expression> expr_no_comma expr */
