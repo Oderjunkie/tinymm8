@@ -14,4 +14,4 @@ compiler : parser lexer
 	g++ $(GCCFLAGS) -o compiler lexer.cc parser.cc tinymm8.cc
 
 reset :
-	rm -f lexer.?? parser.?? compiler
+	rm -f lexer.?? parser.?? compiler location.hh
