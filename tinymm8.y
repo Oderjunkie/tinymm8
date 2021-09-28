@@ -46,11 +46,11 @@
 }
 
 %code requires {
+#include <utility>
+#include <optional>
 #include <string>
-#include <vector>
 typedef std::pair<std::optional<std::string>, std::string> typed_ident;
 using std::string;
-using std::vector;
 namespace driver {
     class driver;
 }
