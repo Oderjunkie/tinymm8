@@ -14,14 +14,24 @@
 %token IDENT NUMBER
 %token LPAREN "(" RPAREN ")" LBRACK "{" RBRACK "}"
 %token SEMI ";" STATIC "static" RETURN "return"
-%token COMMA "," RAISE "**" TIMES "*" OVER "/" PLUS "+" MINUS "-"
-%token ASSGN "=" EQ "==" NEQ "!=" GT ">" GTE ">=" LT "<" LTE "<="
-%left COMMA
+%token COMMA "," RAISE "**" TIMES "*" OVER "/" PLUS "+" MINUS "-" FOVER "//" 
+%token ASSGN "=" EQ "==" NEQ "!=" GT ">" GTE ">=" LT "<" LTE "<=" MOD "%"
+%token BAND "&" BOR "|" BXOR "^" LAND "&&" LOR "||" LNOT "!" BNOT "~"
 %right RAISE
-%left TIMES OVER
+%right LNOT BNOT
+%left TIMES OVER MOD
 %left PLUS MINUS
-%type<char*> IDENT
+%left LT LTE GT GTE
+%left EQ NEQ
+%left BAND
+%left BXOR
+%left BOR
+%left LAND
+%left LOR
+%right ASSGN
+%left COMMA
 %type<int> NUMBER
+%type<char*> IDENT
 
 /* %type<expression> expr_no_comma expr */
 %code top {
