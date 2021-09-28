@@ -1,4 +1,5 @@
-%require "3.2"
+%require "3.7.6"
+%locations
 %language "c++"
 %skeleton "lalr1.cc"
 %define api.token.constructor
