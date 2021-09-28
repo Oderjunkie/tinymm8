@@ -36,3 +36,17 @@ loc.step();
 .                      throw  yy::parser::syntax_error(loc, "invalid character: " + std::string(yytext));
 <<EOF>>                return yy::parser::make_YYEOF(loc);
 %%
+
+void driver::driver::scan_begin() {
+	yy_flex_debug = trace_scanning;
+	if (file.empty() || file == "-")
+		yyin = stdin;
+	else if (!(yyin = fopen (file.c_str (), "r"))) {
+		std::cerr << "cannot open " << file << ": " << strerror(errno) << std::endl;
+		exit(EXIT_FAILURE);
+	}
+}
+
+void driver::driver::scan_end() {
+  fclose(yyin);
+}
