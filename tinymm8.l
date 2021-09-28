@@ -31,9 +31,9 @@ loc.step();
 "*"                    return yy::parser::make_TIMES(loc);
 "/"                    return yy::parser::make_OVER(loc);
 "**"                   return yy::parser::make_RAISE(loc);
-[0-9]+                 std::cout << "NUMBER" << std::endl; return yy::parser::make_NUMBER(1, loc); // std::stoi(std::string())
-[a-zA-Z_][a-zA-Z0-9_]* std::cout << "IDENT" << std::endl; return yy::parser::make_IDENT(yytext, loc);
-.                      throw  yy::parser::syntax_error(loc, "invalid character: " + std::string(yytext));
+[0-9]+                 return yy::parser::make_NUMBER(1, loc); // std::cout << "NUMBER[\"" << yytext << "\"]" << std::endl; std::stoi(std::string())
+[a-zA-Z_][a-zA-Z0-9_]* return yy::parser::make_IDENT(yytext, loc); // std::cout << "IDENT[\"" << yytext << "\"]" << std::endl;
+.                      throw  yy::parser::syntax_error(loc, "invalid character: \"" + std::string(yytext) + "\"");
 <<EOF>>                return yy::parser::make_YYEOF(loc);
 %%
 
