@@ -1,4 +1,4 @@
-%option noyywrap nounput noinput batch  debug
+%option noyywrap nounput noinput batch debug
 %{
 
 #include "tinymm8.hh"
