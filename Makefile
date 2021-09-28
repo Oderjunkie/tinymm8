@@ -4,7 +4,7 @@ GCCFLAGS ?= -std=c++20
 
 all : reset compiler
 
-lexer : *.l
+lexer : parser *.l
 	flex $(LEXFLAGS) -o lexer.cc *.l
 
 parser : *.y
