@@ -24,6 +24,7 @@ loc.step();
 "}"                    return yy::parser::make_RBRACK(loc);
 ";"                    return yy::parser::make_SEMI(loc);
 "noninline"            return yy::parser::make_KW_NONINLINE(loc);
+"if"                   return yy::parser::make_KW_IF(loc);
 ","                    return yy::parser::make_COMMA(loc);
 "return"               return yy::parser::make_KW_RETURN(loc);
 "+"                    return yy::parser::make_PLUS(loc);
