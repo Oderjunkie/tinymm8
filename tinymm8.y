@@ -35,8 +35,7 @@
 %type<std::string> IDENT
 %nterm<typed_ident> type_and_ident
 %nterm<std::deque<typed_ident>> args_req args
-%nterm<ast::expression> expr expr1 blockstat
-%nterm<ast::statement> stat stat1
+%nterm<std::shared_ptr<ast::Expression>> expr
 
 %code requires {
 #include <utility>
@@ -77,48 +76,44 @@ funcdecl: type_and_ident[ident] "(" args ")" stmt {
 
 /* ifstat: "if" "(" expr1[cond] ")" expr1[iftrue] */
 
-type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair(std::move($type), std::move($name)); }
-|                                IDENT[name] { $res = std::pair(std::nullopt,     std::move($name)); }
+type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair(std::move($type),        std::move($name)); }
+|                                IDENT[name] { $res = std::pair(std::nullopt,            std::move($name)); }
 ;
 
-expr1[res]: expr[lhs] "+"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::PLUS;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "-"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::MINUS; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "*"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::TIMES; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "/"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::OVER;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "%"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::MOD;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "="  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::ASSGN; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "==" expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::EQ;    $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "!=" expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::NEQ;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "<"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::GT;    $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "<=" expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::GTE;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] ">"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::LT;    $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] ">=" expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::LTE;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "&"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::BAND;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "|"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::BOR;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "^"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::BXOR;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "~"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::BNOT;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "&&" expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::LAND;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "||" expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::LOR;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] "!"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::LNOT;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           expr[lhs] ","  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::COMMA; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
-|           "(" expr[val] ")"        { $res = $val; }
-|           IDENT[id]                { $res.exprtype = ast::type::IDENT; $res.ident = $id;  }
-|           NUMBER[num]              { $res.exprtype = ast::type::NUM;   $res.num   = $num; }
+expr[res]: expr[lhs] "+"  expr[rhs] { $res = std::make_shared<ast::Expression>(ast::Expression({std::make_shared<ast::Expression>($lhs), std::make_shared<ast::Expression>($rhs), ast::op::PLUS})); }
+|          expr[lhs] "-"  expr[rhs] { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::MINUS; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "*"  expr[rhs] { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::TIMES; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "/"  expr[rhs] { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::OVER;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "%"  expr[rhs] { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::MOD;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "="  expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::ASSGN; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "==" expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::EQ;    $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "!=" expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::NEQ;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "<"  expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::GT;    $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "<=" expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::GTE;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] ">"  expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::LT;    $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] ">=" expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::LTE;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "&"  expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::BAND;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "|"  expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::BOR;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "^"  expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::BXOR;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "~"  expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::BNOT;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "&&" expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::LAND;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "||" expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::LOR;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] "!"  expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::LNOT;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[lhs] ","  expr[rhs]                      { /*$res.exprtype = ast::type::BINOP; $res.binop.opr = ast::op::COMMA; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs;*/ }
+|          expr[cond] "?" expr[iftrue] ":" expr[iffalse] { /*;*/}
+|          "(" expr[val] ")"                             { /*$res = $val;*/ }
+|          IDENT[id]                                     { /*$res.exprtype = ast::type::IDENT; $res.ident = $id;*/  }
+|          NUMBER[num]                                   { /*$res.exprtype = ast::type::NUM;   $res.num   = $num;*/ }
+|          blockstmt "}"                                 {  }
 ;
 
-expr[res]: expr1[val]    {  }
-|          blockstmt "}" {  }
-
-stmt1[res]: expr1[val] ";"            { $res.stattype = ast::type::EMPTY; }
-|           "return" expr[retval] ";" { $res.stattype = ast::type::EMPTY; }
-|           "return" ";"              { $res.stattype = ast::type::EMPTY; }
+stmt[res]: expr[val] ";"             { /*$res.stattype = ast::type::EMPTY;*/ }
+|          "return" expr[retval] ";" { /*$res.stattype = ast::type::EMPTY;*/ }
+|          "return" ";"              { /*$res.stattype = ast::type::EMPTY;*/ }
 ;
 
-stmt[res]: stmt1[val] { $res = $val; }
-;
-
-blockstmt[res]: blockstmt[self] stmt[inst] { $res = $self; $res.push_front($inst); }
-|               "{"                        { $res = {};                            }
+blockstmt[res]: blockstmt[self] stmt[inst] { /* $res = $self; $res.push_front($inst);*/ }
+|               "{"                        { /* $res = {};                           */ }
 ;
 
 args_req[res]: args_req[self] "," type_and_ident[el] { $res = $self; $res.push_front($el); }
