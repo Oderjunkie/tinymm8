@@ -23,7 +23,7 @@ loc.step();
 "{"                    return yy::parser::make_LBRACK(loc);
 "}"                    return yy::parser::make_RBRACK(loc);
 ";"                    return yy::parser::make_SEMI(loc);
-"static"               return yy::parser::make_KW_STATIC(loc);
+"noninline"            return yy::parser::make_KW_NONINLINE(loc);
 ","                    return yy::parser::make_COMMA(loc);
 "return"               return yy::parser::make_KW_RETURN(loc);
 "+"                    return yy::parser::make_PLUS(loc);
