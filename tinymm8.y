@@ -11,7 +11,6 @@
 %define parse.error detailed
 %define parse.lac full
 %param { driver::driver& drv }
-%printer { yyo << $$; } <*>;
 %token IDENT NUMBER
 %token LPAREN "(" RPAREN ")" LBRACK "{" RBRACK "}"
 %token SEMI ";" KW_NONINLINE "noninline" KW_RETURN "return" KW_IF "if"
