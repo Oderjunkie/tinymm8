@@ -67,7 +67,7 @@ decl: funcdecl {}
 // | vardecl
 ;
 
-funcdecl: type_and_ident[ident] "(" args ")" stat {
+funcdecl: type_and_ident[ident] "(" args ")" stmt {
 	auto const& [rettype, name] = std::move($ident);
 	std::cout << "FUNCTION DEFINITION" << std::endl <<
 	          "return type: " << rettype.value_or("[void]") << std::endl <<
@@ -107,17 +107,17 @@ expr1[res]: expr[lhs] "+"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.bi
 ;
 
 expr[res]: expr1[val]    {  }
-|          blockstat "}" {  }
+|          blockstmt "}" {  }
 
-stat1[res]: expr1[val] ";"            { $res.stattype = ast::type::EMPTY; }
+stmt1[res]: expr1[val] ";"            { $res.stattype = ast::type::EMPTY; }
 |           "return" expr[retval] ";" { $res.stattype = ast::type::EMPTY; }
 |           "return" ";"              { $res.stattype = ast::type::EMPTY; }
 ;
 
-stat[res]: stat1[val] { $res = $val; }
+stmt[res]: stmt1[val] { $res = $val; }
 ;
 
-blockstat[res]: blockstat[self] stat[inst] { $res = $self; $res.push_front($inst); }
+blockstmt[res]: blockstmt[self] stmt[inst] { $res = $self; $res.push_front($inst); }
 |               "{"                        { $res = {};                            }
 ;
 
