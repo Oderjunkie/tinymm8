@@ -27,7 +27,7 @@ Expression& Expression::operator=(Expression const& expr) {
                 this->body = expr.body;
                 std::for_each(
                     this->body.begin(), this->body.end(),
-                    [](Node& expr) { expr = Expression(expr); });
+                    [](Expression*& expr) { expr = new Expression(*expr); });
                 this->body = blck_stmt(this->body);
                 break;
         case exprtype::IDENT: this->ident = expr.ident; break;
@@ -147,8 +147,8 @@ void Expression::dump() {
         case exprtype::BODY:
                 std::cout << "{ ";
                 std::for_each(this->body.begin(), this->body.end(),
-                              [](Expression& expr) {
-                                      expr.dump();
+                              [](Expression* expr) {
+                                      expr->dump();
                                       std::cout << "; ";
                               });
                 std::cout << "}";
@@ -162,8 +162,8 @@ void Expression::dump() {
                         std::cout << "(";
                         std::for_each(this->binopr.rhs->body.begin(),
                                       this->binopr.rhs->body.end(),
-                                      [](Expression& expr) {
-                                              expr.dump();
+                                      [](Expression* expr) {
+                                              expr->dump();
                                               std::cout << ", ";
                                       });
                         std::cout << ")";
