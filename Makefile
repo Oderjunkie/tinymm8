@@ -11,8 +11,8 @@ lexer : parser tinymm8.l
 parser : tinymm8.y
 	bison $(YACCFLAGS) -o parser.cc -d *.y
 
-compiler : tinymm8.cc tinymm8.hh ast.cc ast.hh
-	g++ $(GCCFLAGS) -o compiler lexer.cc parser.cc tinymm8.cc ast.cc
+compiler : tinymm8.cc tinymm8.hh ast.cc ast.hh emitter.cc emitter.hh
+	g++ $(GCCFLAGS) -o compiler lexer.cc parser.cc tinymm8.cc ast.cc emitter.cc
 
 reset :
 	rm -f lexer.?? parser.?? compiler location.hh

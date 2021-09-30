@@ -45,6 +45,7 @@
 #include <optional>
 #include <string>
 #include "ast.hh"
+#include "emitter.hh"
 using std::string;
 namespace driver {
     class driver;
@@ -64,6 +65,7 @@ done[res]: library[val] YYEOF {
 	$res = $val;
 	std::for_each($res.begin(), $res.end(), [](FuncDecl& fndecl){
 		fndecl.dump();
+		emitter::emit(fndecl);
 	});
 };
 
