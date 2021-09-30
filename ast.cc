@@ -213,12 +213,12 @@ FuncDecl& FuncDecl::operator=(FuncDecl const& fndecl) {
 }
 void FuncDecl::dump() {
         auto const& [fntype, fnname] = this->fnid;
-        if (fntype.has_value()) std::cout << fntype.value() << " ";
-        std::cout << fnname << "(";
+        if (fntype.has_value()) std::cout << "\e[35m" << fntype.value() << "\e[m ";
+        std::cout << "\e[1;32m" << fnname << "\e[m(";
         std::for_each(
             this->args.begin(), this->args.end(), [](typed_ident& arg) {
                     auto const& [atype, aname] = arg;
-                    std::cout << atype.value_or("") << " " << aname << ", ";
+                    std::cout << "\e[35m" << atype.value() << "\e[m \e[1;32m" << aname << "\e[m, ";
             });
         std::cout << ") ";
         this->body.dump();
