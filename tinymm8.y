@@ -17,18 +17,18 @@
 %token COMMA "," RAISE "**" TIMES "*" OVER "/" PLUS "+" MINUS "-" FOVER "//" 
 %token ASSGN "=" EQ "==" NEQ "!=" GT ">" GTE ">=" LT "<" LTE "<=" MOD "%"
 %token BAND "&" BOR "|" BXOR "^" LAND "&&" LOR "||" LNOT "!" BNOT "~"
-%right LNOT BNOT
-%left TIMES OVER MOD
-%left PLUS MINUS
-%left LT LTE GT GTE
-%left EQ NEQ
-%left BAND
-%left BXOR
-%left BOR
-%left LAND
-%left LOR
-%right ASSGN
-%left COMMA
+%right "!" "~"
+%left "*" "/" "%"
+%left "+" "-"
+%left "<" "<=" ">" ">="
+%left "==" "!="
+%left "&"
+%left "^"
+%left "|"
+%left "&&"
+%left "||"
+%right "="
+%left ","
 %type<int> NUMBER
 %type<std::string> IDENT
 %nterm<typed_ident> type_and_ident
