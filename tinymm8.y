@@ -14,7 +14,7 @@
 %printer { yyo << $$; } <*>;
 %token IDENT NUMBER
 %token LPAREN "(" RPAREN ")" LBRACK "{" RBRACK "}"
-%token SEMI ";" STATIC "static" RETURN "return"
+%token SEMI ";" KW_STATIC "static" KW_RETURN "return"
 %token COMMA "," RAISE "**" TIMES "*" OVER "/" PLUS "+" MINUS "-" FOVER "//" 
 %token ASSGN "=" EQ "==" NEQ "!=" GT ">" GTE ">=" LT "<" LTE "<=" MOD "%"
 %token BAND "&" BOR "|" BXOR "^" LAND "&&" LOR "||" LNOT "!" BNOT "~"
