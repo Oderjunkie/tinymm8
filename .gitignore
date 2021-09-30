@@ -1,1 +1,6 @@
+compiler
+lexer.??
+parser.??
+.emacs-setup.el
+location.hh
 err.log
