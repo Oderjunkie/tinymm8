@@ -46,6 +46,8 @@ loc.step();
 "&&"                   return yy::parser::make_LAND(loc);
 "||"                   return yy::parser::make_LOR(loc);
 "!"                    return yy::parser::make_LNOT(loc);
+"?"                    return yy::parser::make_TERN_IF(loc);
+":"                    return yy::parser::make_TERN_ELSE(loc);
 [0-9]+                 return yy::parser::make_NUMBER(1, loc);
 [a-zA-Z_][a-zA-Z0-9_]* {
 	std::string str(yytext, std::find(yytext, &yytext[256], '\0'));

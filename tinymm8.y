@@ -17,6 +17,7 @@
 %token COMMA "," RAISE "**" TIMES "*" OVER "/" PLUS "+" MINUS "-" FOVER "//" 
 %token ASSGN "=" EQ "==" NEQ "!=" GT ">" GTE ">=" LT "<" LTE "<=" MOD "%"
 %token BAND "&" BOR "|" BXOR "^" LAND "&&" LOR "||" LNOT "!" BNOT "~"
+%token TERN_IF "?" TERN_ELSE ":"
 %right "!" "~"
 %left "*" "/" "%"
 %left "+" "-"
@@ -29,6 +30,7 @@
 %left "||"
 %right "="
 %left ","
+%nonassoc "?" ":"
 %type<int> NUMBER
 %type<std::string> IDENT
 %nterm<typed_ident> type_and_ident
