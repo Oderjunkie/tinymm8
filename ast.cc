@@ -204,10 +204,11 @@ FuncDecl::FuncDecl(typed_ident const& fnid,
     fnid(fnid),
     args(args), body(body) {}
 FuncDecl::FuncDecl(FuncDecl const& fndecl) { *this = fndecl; }
-FuncDecl::~FuncDecl()      = default;
+FuncDecl::~FuncDecl()       = default;
 FuncDecl& FuncDecl::operator=(FuncDecl const& fndecl) {
         this->fnid = fndecl.fnid;
         this->args = fndecl.args;
         this->body = fndecl.body;
-	return *this;
+        return *this;
+}
 }
