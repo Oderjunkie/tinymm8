@@ -72,63 +72,42 @@ namespace driver {
 
 %%
 
-library: library decl {/*std::cout << "library: library decl" << std::endl;*/}
-|        %empty       {/*std::cout << "library: %""empty" << std::endl;*/}
+library: library decl {}
+|        %empty       {}
 ;
 
-decl: funcdecl {/*std::cout << "decl: funcdecl" << std::endl;*/}
+decl: funcdecl {}
 // | vardecl
 ;
 
-funcdecl: /*type*/ IDENT "(" args ")" expr {/*std::cout << "funcdecl: type IDENT \"(\" args \")\" expr" << std::endl;*/}
+funcdecl: IDENT "(" args ")" expr {}
 type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair($type,        $name); }
 |                                IDENT[name] { $res = std::pair(std::nullopt, $name); }
 ;
 
 ;
 
-expr: "return" expr ";" {/*std::cout << "expr: \"return\" expr \";\"" << std::endl;*/}
-|     IDENT             {/*std::cout << "expr: IDENT" << std::endl;*/}
-|     NUMBER            {/*std::cout << "expr: NUMBER" << std::endl;*/}
-|     %empty            {/*std::cout << "expr: %""empty" << std::endl;*/}
+expr: "return" expr ";" {}
+|     IDENT             {}
+|     NUMBER            {}
+|     %empty            {}
 ;
 
-args_req: args_req "," arg {/*std::cout << "args_req: args_req \",\" arg" << std::endl;*/}
-|         arg              {/*std::cout << "args_req: arg" << std::endl;*/}
+args_req: args_req "," arg {}
+|         arg              {}
 ;
 
-args: args_req {/*std::cout << "args: args_req" << std::endl;*/}
-|     %empty   {/*std::cout << "args: %""empty" << std::endl;*/}
+args: args_req {}
+|     %empty   {}
 ;
 
-arg: type IDENT {/*std::cout << "arg: type IDENT" << std::endl;*/}
+arg: type IDENT {}
 ;
 
-// program: expr ";" {}
 
-// expr_no_comma: expr_no_comma "+" expr_no_comma
-// |              expr_no_comma "-" expr_no_comma
-// |              expr_no_comma "*" expr_no_comma
-// |              expr_no_comma "/" expr_no_comma
-// |              expr_no_comma "**" expr_no_comma
-// |              "(" expr ")"                     { $$ = $2; }
-// |              IDENT                            { $$ = $1; }
-// |              NUMBER                           { $$ = $1; }
-// ;
-
-// expr: expr_no_comma          { $$ = $1; }
-// |     expr "," expr_no_comma
-// ;
 
 %%
-
-/*namespace yy {
-    parser::symbol_type yylex();
-}*/
 
 void yy::parser::error(const location_type& loc, const std::string& err) {
 	std::cerr << loc << std::endl << err << std::endl;
 }
-
-// #include "lexer.hh"
-// #include <FlexLexer.h>
