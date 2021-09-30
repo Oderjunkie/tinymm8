@@ -1,0 +1,42 @@
+BasedOnStyle: Mozilla
+IndentWidth: 8
+
+Language: Cpp
+ColumnLimit: 0
+PointerAlignment: Left
+AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveBitFields: Consecutive
+AlignConsecutiveDeclarations: None
+AlignConsecutiveMacros: Consecutive
+AlignEscapedNewlines: Left
+AlignOperands: Align
+AlignTrailingComments: true # ah, that 3-col style leaking through.
+AllowAllArgumentsOnNextLine: no
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: yes
+AllowShortEnumsOnASingleLine: yes
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse # AllIfsAndElse doesn't work???
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: yes
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: no
+AlwaysBreakTemplateDeclarations: No
+BinPackArguments: yes
+BinPackParameters: yes
+BreakBeforeBraces: Attach
+BreakBeforeTernaryOperators: yes
+BreakConstructorInitializers: AfterColon
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: All
+#PackConstructorInitializers: CurrentLine
+#BreakBeforeBraces: Custom
+#BraceWrapping:
+#  AfterCaseLabel: no
+#  AfterClass: no
+#  BraceWrappingAfterControlStatementStyle: Never
+#  AfterEnum: no
+#  AfterFunction: no
+#  AfterNamespace: no
+#  AfterStruct: no
+#  Afterunion
