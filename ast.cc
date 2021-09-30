@@ -192,7 +192,7 @@ void Expression::dump() {
                 std::cout << "return ";
                 this->ret->dump();
                 return;
-        case exprtype::NONE: std::cout << "\e[1;30m[null]\e[m"; return;
+        case exprtype::NONE: std::cout << "\e[1;30mnull\e[m"; return;
         default: std::cout << "\e[31m[unknown]\e[m"; return;
         }
 }
