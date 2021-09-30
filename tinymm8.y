@@ -134,8 +134,8 @@ expr_no_comma[res]: expr_no_comma[lhs] "+"  expr_no_comma[rhs]                  
 |                   NUMBER[num]                                                       { $res = Expression($num);                                      }
 ;
 
-expr_args_req[res]: expr_args_req[self] "," expr_no_comma[el] { $res = $self; $res.push_back(new Expression($el)); }
-|                   expr_no_comma[el]                         { $res = {};    $res.push_back(new Expression($el)); }
+expr_args_req[res]: expr_args_req[self] "," expr_no_comma[el] { $res = $self; $res.push_back(Expression($el)); }
+|                   expr_no_comma[el]                         { $res = {};    $res.push_back(Expression($el)); }
 ;
 
 expr_args[res]: expr_args_req[self] { $res = $self; }
@@ -159,8 +159,8 @@ stmt_other[res]: expr_with_semicolon[val]  { $res = $val;                       
 |                "return" ";"              { $res = Expression(new Expression());        }
 ;
 
-stmt_list[res]: stmt_list[self] stmt[inst] { $res = $self; $res.push_back(new Expression($inst)); }
-|               %empty                     { $res = {};                                           }
+stmt_list[res]: stmt_list[self] stmt[inst] { $res = $self; $res.push_back(Expression($inst)); }
+|               %empty                     { $res = {};                                       }
 ;
 
 blck_stmt[res]: "{" stmt_list[blck] "}" { $res = $blck; }

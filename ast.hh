@@ -56,7 +56,7 @@ namespace ast {
                 Expression* val;
                 op opr;
         };
-        using blck_stmt   = std::vector<Expression*>;
+        using blck_stmt   = std::vector<Expression>;
         using typed_ident = std::pair<std::optional<std::string>, std::string>;
         enum class exprtype {
                 NONE,
