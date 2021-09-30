@@ -93,4 +93,19 @@ namespace ast {
                 Expression& operator=(Expression const& expr);
                 void dump();
         };
-}
+        class FuncDecl : public Node {
+              protected:
+                typed_ident fnid;
+                std::vector<typed_ident> args;
+                Expression body;
+
+              public:
+                FuncDecl();
+                FuncDecl(typed_ident const& fnid,
+                         std::vector<typed_ident> const& args,
+                         Expression const& body);
+                FuncDecl(FuncDecl const& fndecl);
+                FuncDecl& operator=(FuncDecl const& fndecl);
+                ~FuncDecl();
+        };
+} // namespace ast

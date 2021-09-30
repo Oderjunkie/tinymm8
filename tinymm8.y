@@ -37,6 +37,8 @@
 %nterm<std::vector<ast::typed_ident>> args_req args
 %nterm<ast::Expression> expr_no_comma expr_with_semicolon expr stmt stmt_open stmt_closed stmt_other if_stmt_open if_stmt_closed
 %nterm<ast::blck_stmt> blck_stmt expr_args_req expr_args stmt_list
+%nterm<ast::FuncDecl> funcdecl decl
+%nterm<std::vector<ast::FuncDecl>> library
 
 %code requires {
 #include <utility>
@@ -58,21 +60,22 @@ using namespace ast;
 
 %%
 
-library: library decl {  }
-|        %empty       {  }
+library[res]: library[self] decl[el] { $res = $self; $res.push_back($el); }
+|             %empty                 { $res = {};                         }
 ;
 
-decl: funcdecl {}
+decl[res]: funcdecl[fn] { $res = $fn; }
 // | vardecl
 ;
 
-funcdecl: type_and_ident[ident] "(" args ")" stmt {
+funcdecl[res]: type_and_ident[ident] "(" args ")" stmt {
         auto const& [rettype, name] = $ident;
 	std::cout << "FUNCTION DEFINITION" << std::endl <<
 	          "return type: " << rettype.value_or("[void]") << std::endl <<
 	          "name: " << name << std::endl << "body: ";
 	$stmt.dump();
 	std::cout << std::endl;
+	$res = ast::FuncDecl($ident, $args, $stmt);
 }
 ;
 
