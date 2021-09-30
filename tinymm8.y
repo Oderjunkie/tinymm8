@@ -5,7 +5,7 @@
 %define api.token.prefix {token}
 %define api.parser.class {parser}
 %define api.token.constructor
-%define api.value.automove
+/* %define api.value.automove */
 %define api.token.raw
 %define parse.trace
 %define parse.error detailed
@@ -66,7 +66,7 @@ decl: funcdecl {}
 ;
 
 funcdecl: type_and_ident[ident] "(" args ")" stat {
-	auto const& [rettype, name] = $ident;
+	auto const& [rettype, name] = std::move($ident);
 	std::cout << "FUNCTION DEFINITION" << std::endl <<
 	          "return type: " << rettype.value_or("[void]") << std::endl <<
 	          "name: " << name << std::endl;
@@ -75,8 +75,8 @@ funcdecl: type_and_ident[ident] "(" args ")" stat {
 
 /* ifstat: "if" "(" expr1[cond] ")" expr1[iftrue] */
 
-type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair($type,        $name); }
-|                                IDENT[name] { $res = std::pair(std::nullopt, $name); }
+type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair(std::move($type), std::move($name)); }
+|                                IDENT[name] { $res = std::pair(std::nullopt,     std::move($name)); }
 ;
 
 expr1[res]: expr[lhs] "+"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::PLUS;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
