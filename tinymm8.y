@@ -18,7 +18,6 @@
 %token COMMA "," RAISE "**" TIMES "*" OVER "/" PLUS "+" MINUS "-" FOVER "//" 
 %token ASSGN "=" EQ "==" NEQ "!=" GT ">" GTE ">=" LT "<" LTE "<=" MOD "%"
 %token BAND "&" BOR "|" BXOR "^" LAND "&&" LOR "||" LNOT "!" BNOT "~"
-%right RAISE
 %right LNOT BNOT
 %left TIMES OVER MOD
 %left PLUS MINUS

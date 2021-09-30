@@ -32,7 +32,6 @@ loc.step();
 "/"                    return yy::parser::make_OVER(loc);
 "%"                    return yy::parser::make_MOD(loc);
 "//"                   return yy::parser::make_FOVER(loc);
-"**"                   return yy::parser::make_RAISE(loc);
 "="                    return yy::parser::make_ASSGN(loc);
 "=="                   return yy::parser::make_EQ(loc);
 "!="                   return yy::parser::make_NEQ(loc);
