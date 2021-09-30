@@ -61,7 +61,7 @@ using namespace ast;
 %%
 
 done[res]: library[val] YYEOF {
-  $res = $val;
+	$res = $val;
 	std::for_each($res.begin(), $res.end(), [](FuncDecl& fndecl){
 		fndecl.dump();
 	});
