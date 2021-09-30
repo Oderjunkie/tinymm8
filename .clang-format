@@ -1,8 +1,8 @@
-BasedOnStyle: Mozilla
+BasedOnStyle: LLVM
 IndentWidth: 8
 
 Language: Cpp
-ColumnLimit: 0
+ColumnLimit: 80
 PointerAlignment: Left
 AlignConsecutiveAssignments: Consecutive
 AlignConsecutiveBitFields: Consecutive
@@ -19,7 +19,8 @@ AllowShortFunctionsOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: WithoutElse # AllIfsAndElse doesn't work???
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: yes
-AlwaysBreakAfterReturnType: None
+#AlwaysBreakAfterDeclarationReturnType: None
+#AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: no
 AlwaysBreakTemplateDeclarations: No
 BinPackArguments: yes
