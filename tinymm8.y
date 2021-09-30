@@ -38,7 +38,7 @@
 %nterm<ast::Expression> expr_no_comma expr_with_semicolon expr stmt stmt_open stmt_closed stmt_other if_stmt_open if_stmt_closed
 %nterm<ast::blck_stmt> blck_stmt expr_args_req expr_args stmt_list
 %nterm<ast::FuncDecl> funcdecl decl
-%nterm<std::vector<ast::FuncDecl>> library
+%nterm<std::vector<ast::FuncDecl>> library done
 
 %code requires {
 #include <utility>
@@ -56,9 +56,13 @@ namespace driver {
 using namespace ast;
 }
 
-%start library;
+%start done;
 
 %%
+
+done[res]: library[val] YYEOF {
+  $res = $val;
+};
 
 library[res]: library[self] decl[el] { $res = $self; $res.push_back($el); }
 |             %empty                 { $res = {};                         }
