@@ -62,6 +62,9 @@ using namespace ast;
 
 done[res]: library[val] YYEOF {
   $res = $val;
+	std::for_each($res.begin(), $res.end(), [](FuncDecl& fndecl){
+		fndecl.dump();
+	});
 };
 
 library[res]: library[self] decl[el] { $res = $self; $res.push_back($el); }
@@ -73,12 +76,6 @@ decl[res]: funcdecl[fn] { $res = $fn; }
 ;
 
 funcdecl[res]: type_and_ident[ident] "(" args ")" stmt {
-        auto const& [rettype, name] = $ident;
-	std::cout << "FUNCTION DEFINITION" << std::endl <<
-	          "return type: " << rettype.value_or("[void]") << std::endl <<
-	          "name: " << name << std::endl << "body: ";
-	$stmt.dump();
-	std::cout << std::endl;
 	$res = ast::FuncDecl($ident, $args, $stmt);
 }
 ;

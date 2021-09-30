@@ -107,5 +107,6 @@ namespace ast {
                 FuncDecl(FuncDecl const& fndecl);
                 FuncDecl& operator=(FuncDecl const& fndecl);
                 ~FuncDecl();
+	        void dump();
         };
 } // namespace ast
