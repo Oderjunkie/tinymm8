@@ -33,8 +33,8 @@
 %left ","
 %type<int> NUMBER
 %type<std::string> IDENT
-%nterm<typed_ident> type_and_ident
-%nterm<std::vector<typed_ident>> args_req args
+%nterm<ast::typed_ident> type_and_ident
+%nterm<std::vector<ast::typed_ident>> args_req args
 %nterm<ast::Expression> expr_no_comma expr_with_semicolon expr stmt stmt_open stmt_closed stmt_other if_stmt_open if_stmt_closed
 %nterm<ast::blck_stmt> blck_stmt expr_args_req expr_args stmt_list
 
@@ -62,7 +62,7 @@ library: library decl {  }
 |        %empty       {  }
 ;
 
-decl[decl]: funcdecl[decl] {}
+decl: funcdecl {}
 // | vardecl
 ;
 
@@ -82,7 +82,7 @@ if_stmt_open[res]: "if" "(" expr[condition] ")" stmt[iftrue]                    
 
 if_stmt_closed[res]: "if" "(" expr[condition] ")" stmt_closed[iftrue] "else" stmt_closed[iffalse] { $res = Expression(ternop{&$condition, &$iftrue, &$iffalse,        op::TERN }); }
 
-while_stmt[res]
+/* while_stmt[res] */
 
 type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair($type,        $name); }
 |                                IDENT[name] { $res = std::pair(std::nullopt, $name); }

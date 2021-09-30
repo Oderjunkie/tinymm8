@@ -56,7 +56,7 @@ namespace ast {
                 Expression* val;
                 op opr;
         };
-        using blck_stmt   = std::vector<Node*>;
+        using blck_stmt   = std::vector<Expression*>;
         using typed_ident = std::pair<std::optional<std::string>, std::string>;
         enum class exprtype {
                 NONE,
@@ -67,19 +67,6 @@ namespace ast {
                 UNOP,
                 BODY,
                 RETURN
-        };
-        enum class nodetype { EXPR,
-                              VARDECL };
-        class VarDecl : public Node {
-              protected:
-                typed_ident lhs;
-                Expression rhs;
-              public:
-	  VarDecl();
-	  VarDecl(typed_ident const& lhs, Expression const& rhs);
-	  VarDecl(Vardecl const& decl);
-	  VarDecl& operator=(Vardecl const& decl);
-	  ~VarDecl();
         };
         class Expression : public Node {
               protected:
@@ -105,6 +92,5 @@ namespace ast {
                 ~Expression();
                 Expression& operator=(Expression const& expr);
                 void dump();
-                nodetype nodeType();
         };
 }

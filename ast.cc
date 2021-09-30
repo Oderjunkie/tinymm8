@@ -4,12 +4,6 @@
 
 using namespace ast; // Fight me =P
 
-Vardecl::Vardecl() {}
-Vardecl::Vardecl(typed_ident const& lhs, Expression const& rhs) :
-  lhs(lhs) rhs(rhs) {}
-Vardecl::Vardecl(Vardecl const& decl) : lhs(lhs) rhs(rhs) {}
-Vardecl::~Vardecl() = default;
-
 Expression::Expression() :
   type(exprtype::NONE) {}
 Expression::Expression(int const& num) :
