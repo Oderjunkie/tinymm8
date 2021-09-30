@@ -32,36 +32,21 @@
 %type<int> NUMBER
 %type<std::string> IDENT
 %nterm<typed_ident> type_and_ident
-
-/* %type<expression> expr_no_comma expr */
-%code top {
-// extern int yylex();
-// virtual int yyFlexLexer::yylex();
-// #define yylex yyFlexLexer::yylex()
-// #include "tinymm8.hh"
-// int yylex();
-// #include "any.hh"
-}
+%nterm<std::deque<typed_ident>> args_req args
+%nterm<ast::expression> expr expr1 blockstat
+%nterm<ast::statement> stat stat1
 
 %code requires {
 #include <utility>
 #include <optional>
 #include <string>
+#include <deque>
 typedef std::pair<std::optional<std::string>, std::string> typed_ident;
+#include "ast.hh"
 using std::string;
 namespace driver {
     class driver;
 }
-// #include "parser.hh"
-// template <typename T> void YY_DO_BEFORE_ACTION(T...) { return; }
-// template <typename T> void YY_NEW_FILE(T...) { return; }
-// int yyerror();
-// int yywrap();
-/* typedef union expression {
-	string strv;
-	int intv;
-	vector<expression> arrv;
-} expression */
 }
 
 %code {
@@ -80,31 +65,67 @@ decl: funcdecl {}
 // | vardecl
 ;
 
-funcdecl: IDENT "(" args ")" expr {}
+funcdecl: type_and_ident[ident] "(" args ")" stat {
+	auto const& [rettype, name] = $ident;
+	std::cout << "FUNCTION DEFINITION" << std::endl <<
+	          "return type: " << rettype.value_or("[void]") << std::endl <<
+	          "name: " << name << std::endl;
+}
+;
+
+/* ifstat: "if" "(" expr1[cond] ")" expr1[iftrue] */
+
 type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair($type,        $name); }
 |                                IDENT[name] { $res = std::pair(std::nullopt, $name); }
 ;
 
+expr1[res]: expr[lhs] "+"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::PLUS;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "-"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::MINUS; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "*"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::TIMES; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "/"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::OVER;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "%"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::MOD;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "="  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::ASSGN; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "==" expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::EQ;    $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "!=" expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::NEQ;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "<"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::GT;    $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "<=" expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::GTE;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] ">"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::LT;    $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] ">=" expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::LTE;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "&"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::BAND;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "|"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::BOR;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "^"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::BXOR;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "~"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::BNOT;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "&&" expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::LAND;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "||" expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::LOR;   $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] "!"  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::LNOT;  $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           expr[lhs] ","  expr[rhs] { $res.exprtype = ast::type::BINOP; $res.binop.op = ast::op::COMMA; $res.binop.lhs = $lhs; $res.binop.rhs = $rhs; }
+|           "(" expr[val] ")"        { $res = $val; }
+|           IDENT[id]                { $res.exprtype = ast::type::IDENT; $res.ident = $id;  }
+|           NUMBER[num]              { $res.exprtype = ast::type::NUM;   $res.num   = $num; }
 ;
 
-expr: "return" expr ";" {}
-|     IDENT             {}
-|     NUMBER            {}
-|     %empty            {}
+expr[res]: expr1[val]    {  }
+|          blockstat "}" {  }
+
+stat1[res]: expr1[val] ";"            { $res.stattype = ast::type::EMPTY; }
+|           "return" expr[retval] ";" { $res.stattype = ast::type::EMPTY; }
+|           "return" ";"              { $res.stattype = ast::type::EMPTY; }
 ;
 
-args_req: args_req "," arg {}
-|         arg              {}
+stat[res]: stat1[val] { $res = $val; }
 ;
 
-args: args_req {}
-|     %empty   {}
+blockstat[res]: blockstat[self] stat[inst] { $res = $self; $res.push_front($inst); }
+|               "{"                        { $res = {};                            }
 ;
 
-arg: type IDENT {}
+args_req[res]: args_req[self] "," type_and_ident[el] { $res = $self; $res.push_front($el); }
+|              type_and_ident[el]                    { $res = {};    $res.push_front($el); }
 ;
 
-
+args[res]: args_req[val] { $res = $val; }
+|          %empty        { $res = {};    }
+;
 
 %%
 
