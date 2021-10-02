@@ -45,7 +45,6 @@
 #include <optional>
 #include <string>
 #include "ast.hh"
-#include "emitter.hh"
 using std::string;
 namespace driver {
     class driver;
