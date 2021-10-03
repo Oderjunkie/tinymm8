@@ -69,7 +69,7 @@ namespace ast {
                 RETURN
         };
         class Expression : public Node {
-              protected:
+              public:
                 exprtype type;
                 ternop ternopr;
                 binop binopr;
@@ -78,8 +78,6 @@ namespace ast {
                 int num;
                 blck_stmt body;
                 Expression* ret;
-
-              public:
                 Expression();
                 Expression(int const& num);
                 Expression(blck_stmt const& body);
@@ -94,12 +92,10 @@ namespace ast {
                 void dump();
         };
         class FuncDecl : public Node {
-              protected:
+              public:
                 typed_ident fnid;
                 std::vector<typed_ident> args;
                 Expression body;
-
-              public:
                 FuncDecl();
                 FuncDecl(typed_ident const& fnid,
                          std::vector<typed_ident> const& args,
