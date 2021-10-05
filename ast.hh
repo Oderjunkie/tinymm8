@@ -36,7 +36,8 @@ namespace ast {
                 PREINC,
                 PREDEC,
                 POSTINC,
-                POSTDEC
+                POSTDEC,
+		AS
         };
         class Node {};
         class Expression;

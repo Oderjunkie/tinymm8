@@ -94,6 +94,7 @@ bool isunoppre(op opr) {
         case op::LOR:
         case op::CALL:
         case op::TERN:
+        case op::AS:
                 throw std::invalid_argument(
                     "Received binop instead of a unop.");
         }
@@ -131,6 +132,7 @@ std::string op2str(op opr) {
         case op::LNOT: return "!";
         case op::BNOT: return "~";
         case op::CALL: return "()";
+        case op::AS: return "as";
         }
         return "[invalid]";
 }

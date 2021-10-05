@@ -51,6 +51,7 @@ loc.step();
 "!"                    return yy::parser::make_LNOT(loc);
 "?"                    return yy::parser::make_TERN_IF(loc);
 ":"                    return yy::parser::make_TERN_ELSE(loc);
+"as"                   return yy::parser::make_KW_AS(loc);
 0x[0-9A-Fa-f]*         {
         char* endptr;
         return yy::parser::make_NUMBER(strtol(&yytext[2], &endptr, 16), loc);

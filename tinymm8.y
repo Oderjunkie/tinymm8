@@ -17,7 +17,7 @@
 %token COMMA "," RAISE "**" TIMES "*" OVER "/" PLUS "+" MINUS "-" FOVER "//" 
 %token ASSGN "=" EQ "==" NEQ "!=" GT ">" GTE ">=" LT "<" LTE "<=" MOD "%"
 %token BAND "&" BOR "|" BXOR "^" LAND "&&" LOR "||" LNOT "!" BNOT "~"
-%token TERN_IF "?" TERN_ELSE ":" INC "++" DEC "--"
+%token TERN_IF "?" TERN_ELSE ":" INC "++" DEC "--" KW_AS "as"
 %left "(" POSTINC POSTDEC
 %right "!" "~" DEREF ADDROF UNPLUS UNMINUS "++" "--"
 %left "*" "/" "%"
@@ -30,6 +30,7 @@
 %left "&&"
 %left "||"
 %right "=" "?" ":"
+%nonassoc "as"
 %left ","
 %type<int> NUMBER
 %type<std::string> IDENT
@@ -127,6 +128,7 @@ expr_no_comma[res]: expr_no_comma[lhs] "+"  expr_no_comma[rhs]                  
 |                   expr_no_comma[lhs] "?"  expr_no_comma[mhs] ":" expr_no_comma[rhs] { $res = Expression(ternop{&$lhs, &$mhs, &$rhs, op::TERN    }); }
 |                   expr_no_comma[fnn] "(" expr_args[fna] ")"                         { $res = Expression( binop{&$fnn,
 														new Expression($fna), op::CALL    }); }
+|                   expr_no_comma[lhs] "as" expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::AS      }); }
 |                   "(" expr[val] ")"                                                 { $res = $val;                                                  }
 /*|                   blck_stmt[val]                                                    { $res = $val;                                }*/
 |                   IDENT[id]                                                         { $res = Expression($id);                                       }
