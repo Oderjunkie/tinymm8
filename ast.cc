@@ -33,9 +33,6 @@ Expression& Expression::operator=(Expression const& expr) {
         case exprtype::IDENT: this->ident = expr.ident; break;
         case exprtype::RETURN: this->ret = expr.ret; break;
         case exprtype::TERNOP:
-                delete this->ternopr.lhs;
-                delete this->ternopr.mhs;
-                delete this->ternopr.rhs;
                 this->ternopr.lhs =
                     new Expression(std::move(*expr.ternopr.lhs));
                 this->ternopr.mhs =
@@ -45,14 +42,11 @@ Expression& Expression::operator=(Expression const& expr) {
                 this->ternopr.opr = expr.ternopr.opr;
                 break;
         case exprtype::BINOP:
-                delete this->binopr.lhs;
-                delete this->binopr.rhs;
                 this->binopr.lhs = new Expression(std::move(*expr.binopr.lhs));
                 this->binopr.rhs = new Expression(std::move(*expr.binopr.rhs));
                 this->binopr.opr = expr.binopr.opr;
                 break;
         case exprtype::UNOP:
-                delete this->unopr.val;
                 this->unopr.val = new Expression(std::move(*expr.unopr.val));
                 this->unopr.opr = expr.unopr.opr;
                 // efficiency 100
