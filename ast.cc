@@ -56,7 +56,7 @@ Expression& Expression::operator=(Expression const& expr) {
         return *this;
 }
 
-bool isunoppre(op opr) {
+bool isunoppre(op const& opr) {
         switch (opr) {
         case op::LNOT:
         case op::BNOT:
@@ -95,7 +95,7 @@ bool isunoppre(op opr) {
         return false;
 }
 
-std::string op2str(op opr) {
+std::string op2str(op const& opr) {
         switch (opr) {
         case op::COMMA: return ",";
         case op::TIMES: // efficiency 200
@@ -131,7 +131,7 @@ std::string op2str(op opr) {
         return "[invalid]";
 }
 
-void Expression::dump() {
+void Expression::dump() const {
         if (this == (Expression*)0) {
                 std::cout << "\e[1;31m[uhhh crap]\e[m";
                 return;
@@ -143,7 +143,7 @@ void Expression::dump() {
         case exprtype::BODY:
                 std::cout << "{ ";
                 std::for_each(this->body.begin(), this->body.end(),
-                              [](Expression* expr) {
+                              [](Expression const* expr) {
                                       expr->dump();
                                       std::cout << "; ";
                               });
@@ -158,7 +158,7 @@ void Expression::dump() {
                         std::cout << "(";
                         std::for_each(this->binopr.rhs->body.begin(),
                                       this->binopr.rhs->body.end(),
-                                      [](Expression* expr) {
+                                      [](Expression const* expr) {
                                               expr->dump();
                                               std::cout << ", ";
                                       });

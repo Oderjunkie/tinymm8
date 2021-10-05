@@ -90,7 +90,7 @@ namespace ast {
                 Expression(Expression const* expr);
                 ~Expression();
                 Expression& operator=(Expression const& expr);
-                void dump();
+                void dump() const;
         };
         class FuncDecl : public Node {
               public:
