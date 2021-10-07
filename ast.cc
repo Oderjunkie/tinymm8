@@ -6,17 +6,12 @@ using namespace ast; // Fight me =P
 
 Expression::Expression() : type(exprtype::NONE) {}
 Expression::Expression(int const& num) : type(exprtype::NUM), num(num) {}
-Expression::Expression(blck_stmt const& body) :
-    type(exprtype::BODY), body(body) {}
-Expression::Expression(std::string const& ident) :
-    type(exprtype::IDENT), ident(ident) {}
-Expression::Expression(ternop const& opr) :
-    type(exprtype::TERNOP), ternopr(opr) {}
+Expression::Expression(blck_stmt const& body) : type(exprtype::BODY), body(body) {}
+Expression::Expression(std::string const& ident) : type(exprtype::IDENT), ident(ident) {}
+Expression::Expression(ternop const& opr) : type(exprtype::TERNOP), ternopr(opr) {}
 Expression::Expression(binop const& opr) : type(exprtype::BINOP), binopr(opr) {}
 Expression::Expression(unop const& opr) : type(exprtype::UNOP), unopr(opr) {}
-Expression::Expression(Expression const* expr) : type(exprtype::RETURN) {
-        ret = new Expression(*expr);
-}
+Expression::Expression(Expression const* expr) : type(exprtype::RETURN) { ret = new Expression(*expr); }
 Expression::Expression(Expression const& expr) { *this = expr; }
 Expression::~Expression() = default;
 
@@ -25,20 +20,15 @@ Expression& Expression::operator=(Expression const& expr) {
         case exprtype::NUM: this->num = expr.num; break;
         case exprtype::BODY:
                 this->body = expr.body;
-                std::for_each(
-                    this->body.begin(), this->body.end(),
-                    [](Expression*& expr) { expr = new Expression(*expr); });
+                std::for_each(this->body.begin(), this->body.end(), [](Expression*& expr) { expr = new Expression(*expr); });
                 this->body = blck_stmt(this->body);
                 break;
         case exprtype::IDENT: this->ident = expr.ident; break;
         case exprtype::RETURN: this->ret = expr.ret; break;
         case exprtype::TERNOP:
-                this->ternopr.lhs =
-                    new Expression(std::move(*expr.ternopr.lhs));
-                this->ternopr.mhs =
-                    new Expression(std::move(*expr.ternopr.mhs));
-                this->ternopr.rhs =
-                    new Expression(std::move(*expr.ternopr.rhs));
+                this->ternopr.lhs = new Expression(std::move(*expr.ternopr.lhs));
+                this->ternopr.mhs = new Expression(std::move(*expr.ternopr.mhs));
+                this->ternopr.rhs = new Expression(std::move(*expr.ternopr.rhs));
                 this->ternopr.opr = expr.ternopr.opr;
                 break;
         case exprtype::BINOP:
@@ -88,9 +78,7 @@ bool isunoppre(op const& opr) {
         case op::LOR:
         case op::CALL:
         case op::TERN:
-        case op::AS:
-                throw std::invalid_argument(
-                    "Received binop instead of a unop.");
+        case op::AS: throw std::invalid_argument("Received binop instead of a unop.");
         }
         return false;
 }
@@ -137,31 +125,24 @@ void Expression::dump() const {
                 return;
         }
         switch (this->type) {
-        case exprtype::NUM:
-                std::cout << "\e[1;36m" << this->num << "\e[m";
-                return;
+        case exprtype::NUM: std::cout << "\e[1;36m" << this->num << "\e[m"; return;
         case exprtype::BODY:
                 std::cout << "{ ";
-                std::for_each(this->body.begin(), this->body.end(),
-                              [](Expression const* expr) {
-                                      expr->dump();
-                                      std::cout << "; ";
-                              });
+                std::for_each(this->body.begin(), this->body.end(), [](Expression const* expr) {
+                        expr->dump();
+                        std::cout << "; ";
+                });
                 std::cout << "}";
                 return;
-        case exprtype::IDENT:
-                std::cout << "\e[1;32m" << this->ident << "\e[m";
-                return;
+        case exprtype::IDENT: std::cout << "\e[1;32m" << this->ident << "\e[m"; return;
         case exprtype::BINOP:
                 this->binopr.lhs->dump();
                 if (this->binopr.opr == op::CALL) {
                         std::cout << "(";
-                        std::for_each(this->binopr.rhs->body.begin(),
-                                      this->binopr.rhs->body.end(),
-                                      [](Expression const* expr) {
-                                              expr->dump();
-                                              std::cout << ", ";
-                                      });
+                        std::for_each(this->binopr.rhs->body.begin(), this->binopr.rhs->body.end(), [](Expression const* expr) {
+                                expr->dump();
+                                std::cout << ", ";
+                        });
                         std::cout << ")";
                 } else {
                         std::cout << " " << op2str(this->binopr.opr) << " ";
@@ -194,11 +175,7 @@ void Expression::dump() const {
 }
 
 FuncDecl::FuncDecl() {}
-FuncDecl::FuncDecl(typed_ident const& fnid,
-                   std::vector<typed_ident> const& args,
-                   Expression const& body) :
-    fnid(fnid),
-    args(args), body(body) {}
+FuncDecl::FuncDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Expression const& body) : fnid(fnid), args(args), body(body) {}
 FuncDecl::FuncDecl(FuncDecl const& fndecl) { *this = fndecl; }
 FuncDecl::~FuncDecl()       = default;
 FuncDecl& FuncDecl::operator=(FuncDecl const& fndecl) {
@@ -210,12 +187,10 @@ FuncDecl& FuncDecl::operator=(FuncDecl const& fndecl) {
 void FuncDecl::dump() {
         auto const& [fntype, fnname] = this->fnid;
         std::cout << "\e[35m" << fntype << "\e[m \e[1;32m" << fnname << "\e[m(";
-        std::for_each(this->args.begin(), this->args.end(),
-                      [](typed_ident& arg) {
-                              auto const& [atype, aname] = arg;
-                              std::cout << "\e[35m" << atype << "\e[m \e[1;32m"
-                                        << aname << "\e[m, ";
-                      });
+        std::for_each(this->args.begin(), this->args.end(), [](typed_ident& arg) {
+                auto const& [atype, aname] = arg;
+                std::cout << "\e[35m" << atype << "\e[m \e[1;32m" << aname << "\e[m, ";
+        });
         std::cout << ") ";
         this->body.dump();
         std::cout << "\n";

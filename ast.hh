@@ -37,7 +37,7 @@ namespace ast {
                 PREDEC,
                 POSTINC,
                 POSTDEC,
-		AS
+                AS
         };
         class Node {};
         class Expression;
@@ -70,7 +70,7 @@ namespace ast {
                 RETURN
         };
         class Expression : public Node {
-                public:
+              public:
                 exprtype type;
                 ternop ternopr;
                 binop binopr;
@@ -104,6 +104,6 @@ namespace ast {
                 FuncDecl(FuncDecl const& fndecl);
                 FuncDecl& operator=(FuncDecl const& fndecl);
                 ~FuncDecl();
-	        void dump();
+                void dump();
         };
 } // namespace ast

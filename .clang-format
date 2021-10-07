@@ -2,7 +2,7 @@ BasedOnStyle: LLVM
 IndentWidth: 8
 
 Language: Cpp
-ColumnLimit: 80
+ColumnLimit: 170
 PointerAlignment: Left
 AlignConsecutiveAssignments: Consecutive
 AlignConsecutiveBitFields: Consecutive
