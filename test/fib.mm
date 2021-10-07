@@ -3,6 +3,6 @@ u8 fib(u8 i) {
 	return fib(i - 1) + fib(i - 2);
 }
 
-main() {
+void main() {
     *0x8000 = fib(90);
 }

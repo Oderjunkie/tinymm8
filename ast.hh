@@ -58,7 +58,7 @@ namespace ast {
                 op opr;
         };
         using blck_stmt   = std::vector<Expression*>;
-        using typed_ident = std::pair<std::optional<std::string>, std::string>;
+        using typed_ident = std::pair<std::string, std::string>;
         enum class exprtype {
                 NONE,
                 NUM,
@@ -70,7 +70,7 @@ namespace ast {
                 RETURN
         };
         class Expression : public Node {
-              public:
+                public:
                 exprtype type;
                 ternop ternopr;
                 binop binopr;

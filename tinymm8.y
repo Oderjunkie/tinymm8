@@ -91,7 +91,7 @@ if_stmt_closed[res]: "if" "(" expr[condition] ")" stmt_closed[iftrue] "else" stm
 /* while_stmt[res] */
 
 type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair($type,        $name); }
-|                                IDENT[name] { $res = std::pair(std::nullopt, $name); }
+/*|                                IDENT[name] { $res = std::pair(std::nullopt, $name); }*/
 ;
 
 expr[res]: expr_no_comma[val]                            { $res = $val; }
