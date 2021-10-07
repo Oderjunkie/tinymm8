@@ -53,19 +53,15 @@ loc.step();
 ":"                    return yy::parser::make_TERN_ELSE(loc);
 "as"                   return yy::parser::make_KW_AS(loc);
 0x[0-9A-Fa-f]*         {
-        char* endptr;
-        return yy::parser::make_NUMBER(strtol(&yytext[2], &endptr, 16), loc);
+        return yy::parser::make_NUMBER(strtoull(&yytext[2], nullptr, 16), loc);
 }
 [1-9][0-9]*            {
-        char* endptr;
-        return yy::parser::make_NUMBER(strtol(yytext, &endptr, 10), loc);
+        return yy::parser::make_NUMBER(strtoull(yytext, nullptr, 10), loc);
 }
 0[0-7]*                {
-        char* endptr;
-        return yy::parser::make_NUMBER(strtol(&yytext[1], &endptr, 8), loc);
+        return yy::parser::make_NUMBER(strtoull(&yytext[1], nullptr, 8), loc);
 }
 [a-zA-Z_][a-zA-Z0-9_]* {
-	std::string str(yytext, std::find(yytext, &yytext[256], '\0'));
 	return yy::parser::make_IDENT(yytext, loc);
 }
 .                      throw  yy::parser::syntax_error(loc, "lex-time error: invalid character: \"" + std::string(yytext) + "\"");
