@@ -4,6 +4,7 @@
 #include <string>
 
 namespace driver {
+  extern bool pipe_mode;
 	class driver {
 		public:
 			driver();
