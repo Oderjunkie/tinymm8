@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
                                   << "-h           Display this message." << std::endl
                                   << std::endl;
                         return 0;
-                } else if (!drv.parse(argv[i]))
+                } else if (drv.parse(argv[i]) != 0)
                         std::cout << drv.res << std::endl;
                 else
                         res = 1;
