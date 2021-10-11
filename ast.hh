@@ -59,16 +59,7 @@ namespace ast {
         };
         using blck_stmt   = std::vector<Expression*>;
         using typed_ident = std::pair<std::string, std::string>;
-        enum class exprtype {
-                NONE,
-                NUM,
-                IDENT,
-                TERNOP,
-                BINOP,
-                UNOP,
-                BODY,
-                RETURN
-        };
+        enum class exprtype { NONE, NUM, IDENT, TERNOP, BINOP, UNOP, BODY, RETURN };
         class Expression : public Node {
               public:
                 exprtype type;
