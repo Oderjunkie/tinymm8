@@ -62,6 +62,7 @@ using namespace ast;
 %%
 
 done[res]: library[val] YYEOF {
+	@res = @val;
 	$res = $val;
 	std::for_each($res.begin(), $res.end(), [](FuncDecl& fndecl){
 		fndecl.dump();
@@ -69,109 +70,113 @@ done[res]: library[val] YYEOF {
 	});
 };
 
-library[res]: library[self] decl[el] { $res = $self; $res.push_back($el); }
-|             %empty                 { $res = {};                         }
+library[res]: library[self] decl[el] { $res = $self; $res.push_back($el); @res = @self + @el; }
+|             %empty                 { $res = {};                                             }
 ;
 
-decl[res]: funcdecl[fn] { $res = $fn; }
+decl[res]: funcdecl[fn] { $res = $fn; @res = @fn; }
 // | vardecl
 ;
 
 funcdecl[res]: type_and_ident[ident] "(" args ")" stmt {
-	$res = ast::FuncDecl($ident, $args, $stmt);
+	@res = @ident + @stmt;
+	$res = ast::FuncDecl($ident, $args, $stmt, @res);
 }
 ;
 
-if_stmt_open[res]: "if" "(" expr[condition] ")" stmt[iftrue]                                  { $res = Expression(ternop{&$condition, &$iftrue, new Expression(), op::TERN }); }
-|                 "if" "(" expr[condition] ")" stmt_closed[iftrue] "else" stmt_open[iffalse] { $res = Expression(ternop{&$condition, &$iftrue, &$iffalse,        op::TERN }); }
+if_stmt_open[res]: "if"[lhs] "(" expr[condition] ")" stmt[iftrue]                                  { @res = @lhs + @iftrue;  $res = Expression(ternop{ &$condition, &$iftrue, new Expression(), op::TERN }, @res); }
+|                  "if"[lhs] "(" expr[condition] ")" stmt_closed[iftrue] "else" stmt_open[iffalse] { @res = @lhs + @iffalse; $res = Expression(ternop{ &$condition, &$iftrue, &$iffalse,        op::TERN }, @res); }
 ;
 
-if_stmt_closed[res]: "if" "(" expr[condition] ")" stmt_closed[iftrue] "else" stmt_closed[iffalse] { $res = Expression(ternop{&$condition, &$iftrue, &$iffalse,        op::TERN }); }
+if_stmt_closed[res]: "if"[lhs] "(" expr[condition] ")" stmt_closed[iftrue] "else" stmt_closed[iffalse] { @res = @lhs + @iffalse; $res = Expression(ternop{&$condition, &$iftrue, &$iffalse,        op::TERN }, @res);  }
 
 /* while_stmt[res] */
 
-type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair($type,        $name); }
+type_and_ident[res]: IDENT[type] IDENT[name] { $res = std::pair($type, $name); @res = @type + @name; }
 /*|                                IDENT[name] { $res = std::pair(std::nullopt, $name); }*/
 ;
 
-expr[res]: expr_no_comma[val]                            { $res = $val; }
-|          expr[lhs] ","  expr[rhs]                      { $res = Expression( binop{&$lhs, &$rhs, op::COMMA }); }
+expr[res]: expr_no_comma[val]                            { @res = @val; $res = $val; }
+|          expr[lhs] ","  expr[rhs]                      {
+	@res = @lhs + @rhs;
+	$res = Expression( binop{&$lhs, &$rhs, op::COMMA}, @res );
+}
 ;
 
-expr_no_comma[res]: expr_no_comma[lhs] "+"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::PLUS    }); }
-|                                      "+"  expr_no_comma[val]                        { $res = Expression(  unop{&$val,               op::UNPLUS  }); } %prec UNPLUS
-|                                      "++" expr_no_comma[val]                        { $res = Expression(  unop{&$val,               op::PREINC  }); }
-|                   expr_no_comma[val] "++"                                           { $res = Expression(  unop{&$val,               op::POSTINC }); } %prec POSTINC
-|                   expr_no_comma[lhs] "-"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::MINUS   }); } 
-|                                      "-"  expr_no_comma[val]                        { $res = Expression(  unop{&$val,               op::UNMINUS }); } %prec UNMINUS
-|                                      "--" expr_no_comma[val]                        { $res = Expression(  unop{&$val,               op::PREDEC  }); }
-|                   expr_no_comma[val] "--"                                           { $res = Expression(  unop{&$val,               op::POSTDEC }); } %prec POSTDEC
-|                   expr_no_comma[lhs] "*"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::TIMES   }); }
-|                   expr_no_comma[lhs] "/"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::OVER    }); }
-|                   expr_no_comma[lhs] "%"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::MOD     }); }
-|                   expr_no_comma[lhs] "="  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::ASSGN   }); }
-|                   expr_no_comma[lhs] "==" expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::EQ      }); }
-|                   expr_no_comma[lhs] "!=" expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::NEQ     }); }
-|                   expr_no_comma[lhs] "<"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::LT      }); }
-|                   expr_no_comma[lhs] "<=" expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::LTE     }); }
-|                   expr_no_comma[lhs] ">"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::GT      }); }
-|                   expr_no_comma[lhs] ">=" expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::GTE     }); }
-|                   expr_no_comma[lhs] "&"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::BAND    }); }
-|                   expr_no_comma[lhs] "|"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::BOR     }); }
-|                   expr_no_comma[lhs] "^"  expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::BXOR    }); }
-|                                      "~"  expr_no_comma[val]                        { $res = Expression(  unop{&$val,               op::BNOT    }); }
-|                   expr_no_comma[lhs] "&&" expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::LAND    }); }
-|                   expr_no_comma[lhs] "||" expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::LOR     }); }
-|                                      "!"  expr_no_comma[val]                        { $res = Expression(  unop{&$val,               op::LNOT    }); }
-|                                      "*"  expr_no_comma[val]                        { $res = Expression(  unop{&$val,               op::DEREF   }); } %prec DEREF
-|                                      "&"  expr_no_comma[val]                        { $res = Expression(  unop{&$val,               op::ADROF   }); } %prec ADDROF
-|                   expr_no_comma[lhs] "?"  expr_no_comma[mhs] ":" expr_no_comma[rhs] { $res = Expression(ternop{&$lhs, &$mhs, &$rhs, op::TERN    }); }
-|                   expr_no_comma[fnn] "(" expr_args[fna] ")"                         { $res = Expression( binop{&$fnn,
-														new Expression($fna), op::CALL    }); }
-|                   expr_no_comma[lhs] "as" expr_no_comma[rhs]                        { $res = Expression( binop{&$lhs,        &$rhs, op::AS      }); }
-|                   "(" expr[val] ")"                                                 { $res = $val;                                                  }
+expr_no_comma[res]: expr_no_comma[lhs] "+"  expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::PLUS    }, @res); }
+|                                      "+"[opr] expr_no_comma[val]                    { @res = @opr + @val; $res = Expression(  unop{&$val,               op::UNPLUS  }, @res); } %prec UNPLUS
+|                                      "++"[opr] expr_no_comma[val]                   { @res = @opr + @val; $res = Expression(  unop{&$val,               op::PREINC  }, @res); }
+|                   expr_no_comma[val] "++"[opr]                                      { @res = @val + @opr; $res = Expression(  unop{&$val,               op::POSTINC }, @res); } %prec POSTINC
+|                   expr_no_comma[lhs] "-"  expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::MINUS   }, @res); }
+|                                      "-"[opr]  expr_no_comma[val]                   { @res = @opr + @val; $res = Expression(  unop{&$val,               op::UNMINUS }, @res); } %prec UNMINUS
+|                                      "--"[opr] expr_no_comma[val]                   { @res = @opr + @val; $res = Expression(  unop{&$val,               op::PREDEC  }, @res); }
+|                   expr_no_comma[val] "--"[opr]                                      { @res = @val + @opr; $res = Expression(  unop{&$val,               op::POSTDEC }, @res); } %prec POSTDEC
+|                   expr_no_comma[lhs] "*"  expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::TIMES   }, @res); }
+|                   expr_no_comma[lhs] "/"  expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::OVER    }, @res); }
+|                   expr_no_comma[lhs] "%"  expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::MOD     }, @res); }
+|                   expr_no_comma[lhs] "="  expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::ASSGN   }, @res); }
+|                   expr_no_comma[lhs] "==" expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::EQ      }, @res); }
+|                   expr_no_comma[lhs] "!=" expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::NEQ     }, @res); }
+|                   expr_no_comma[lhs] "<"  expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::LT      }, @res); }
+|                   expr_no_comma[lhs] "<=" expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::LTE     }, @res); }
+|                   expr_no_comma[lhs] ">"  expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::GT      }, @res); }
+|                   expr_no_comma[lhs] ">=" expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::GTE     }, @res); }
+|                   expr_no_comma[lhs] "&"  expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::BAND    }, @res); }
+|                   expr_no_comma[lhs] "|"  expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::BOR     }, @res); }
+|                   expr_no_comma[lhs] "^"  expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::BXOR    }, @res); }
+|                                      "~"[opr]  expr_no_comma[val]                   { @res = @opr + @val; $res = Expression(  unop{&$val,               op::BNOT    }, @res); }
+|                   expr_no_comma[lhs] "&&" expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::LAND    }, @res); }
+|                   expr_no_comma[lhs] "||" expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::LOR     }, @res); }
+|                                      "!"[opr]  expr_no_comma[val]                   { @res = @opr + @val; $res = Expression(  unop{&$val,               op::LNOT    }, @res); }
+|                                      "*"[opr]  expr_no_comma[val]                   { @res = @opr + @val; $res = Expression(  unop{&$val,               op::DEREF   }, @res); } %prec DEREF
+|                                      "&"[opr]  expr_no_comma[val]                   { @res = @opr + @val; $res = Expression(  unop{&$val,               op::ADROF   }, @res); } %prec ADDROF
+|                   expr_no_comma[lhs] "?"  expr_no_comma[mhs] ":" expr_no_comma[rhs] { @res = @lhs + @rhs; $res = Expression(ternop{&$lhs, &$mhs, &$rhs, op::TERN    }, @res); }
+|                   expr_no_comma[fnn] "(" expr_args[fna] ")"[opr]                    { @res = @fnn + @opr; $res = Expression( binop{&$fnn,
+															      new Expression($fna, @fna), op::CALL    }, @res); }
+|                   expr_no_comma[lhs] "as" expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = Expression( binop{&$lhs,        &$rhs, op::AS      }, @res); }
+|                   "("[lhs] expr[val] ")"[rhs]                                       { @res = @lhs + @rhs; $res = $val;                                                        }
 /*|                   blck_stmt[val]                                                    { $res = $val;                                }*/
-|                   IDENT[id]                                                         { $res = Expression($id);                                       }
-|                   NUMBER[num]                                                       { $res = Expression($num);                                      }
+|                   IDENT[id]                                                         { @res = @id;  $res = Expression($id, @res);                                              }
+|                   NUMBER[num]                                                       { @res = @num; $res = Expression($num, @res);                                             }
 ;
 
-expr_args_req[res]: expr_args_req[self] "," expr_no_comma[el] { $res = $self; $res.push_back(new Expression($el)); }
-|                   expr_no_comma[el]                         { $res = {};    $res.push_back(new Expression($el)); }
+expr_args_req[res]: expr_args_req[self] "," expr_no_comma[el] { @res = @self + @el; $res = $self; $res.push_back(new Expression($el));  }
+|                   expr_no_comma[el]                         { @res =         @el; $res = {};    $res.push_back(new Expression($el));  }
 ;
 
-expr_args[res]: expr_args_req[self] { $res = $self; }
+expr_args[res]: expr_args_req[self] { $res = $self; @res = @self; }
 |               %empty              { $res = {};    }
 ;
 
-expr_with_semicolon[res]: expr[val] ";" { $res = $val; };
+expr_with_semicolon[res]: expr[val] ";" { $res = $val; @res = @val; };
 
-stmt[res]: stmt_open[val]   { $res = $val; }
-|          stmt_closed[val] { $res = $val; }
+stmt[res]: stmt_open[val]   { $res = $val; @res = @val; }
+|          stmt_closed[val] { $res = $val; @res = @val; }
 
-stmt_open[res]: if_stmt_open;
+stmt_open[res]: if_stmt_open[val] { $res = $val; @res = @val; };
 
-stmt_closed[res]: if_stmt_closed[val] { $res = $val; }
-|                 stmt_other[val]    { $res = $val; }
+stmt_closed[res]: if_stmt_closed[val] { $res = $val; @res = @val; }
+|                 stmt_other[val]    { $res = $val; @res = @val; }
 ;
 
-stmt_other[res]: expr_with_semicolon[val]  { $res = $val;                                }
-|                blck_stmt[val]            { $res = $val;                                }
-|                "return" expr[retval] ";" { $res = Expression(new Expression($retval)); }
-|                "return" ";"              { $res = Expression(new Expression());        }
+stmt_other[res]: expr_with_semicolon[val]            { @res = @val;        $res = $val;                                      } 
+|                blck_stmt[val]                      { @res = @val;        $res = Expression($val, @res);                    }
+|                "return"[lhs] expr[retval] ";"[rhs] { @res = @lhs + @rhs; $res = Expression(new Expression($retval), @res); }
+|                "return"[lhs] ";"[rhs]              { @res = @lhs + @rhs; $res = Expression(new Expression(),        @res); }
 ;
 
-stmt_list[res]: stmt_list[self] stmt[inst] { $res = $self; $res.push_back(new Expression($inst)); }
-|               %empty                     { $res = {};                                           }
+stmt_list[res]: stmt_list[self] stmt[inst] { $res = $self; $res.push_back(new Expression($inst)); @res = @self + @inst; }
+|               %empty                     { $res = {};                                                                 }
 ;
 
-blck_stmt[res]: "{" stmt_list[blck] "}" { $res = $blck; }
+blck_stmt[res]: "{"[lhs] stmt_list[blck] "}"[rhs] { $res = $blck; }
 
-args_req[res]: args_req[self] "," type_and_ident[el] { $res = $self; $res.push_back($el); }
-|              type_and_ident[el]                    { $res = {};    $res.push_back($el); }
+args_req[res]: args_req[self] "," type_and_ident[el] { $res = $self; $res.push_back($el); @res = @self + @el; }
+|              type_and_ident[el]                    { $res = {};    $res.push_back($el); @res = @el;         }
 ;
 
-args[res]: args_req[val] { $res = $val; }
-|          %empty        { $res = {};   }
+args[res]: args_req[val] { $res = $val; @res = @val; }
+|          %empty        { $res = {};                }
 ;
 
 %%

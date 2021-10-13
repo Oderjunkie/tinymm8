@@ -5,13 +5,14 @@
 using namespace ast; // Fight me =P
 
 Expression::Expression() : type(exprtype::NONE) {}
-Expression::Expression(int const& num) : type(exprtype::NUM), num(num) {}
-Expression::Expression(blck_stmt const& body) : type(exprtype::BODY), body(body) {}
-Expression::Expression(std::string const& ident) : type(exprtype::IDENT), ident(ident) {}
-Expression::Expression(ternop const& opr) : type(exprtype::TERNOP), ternopr(opr) {}
-Expression::Expression(binop const& opr) : type(exprtype::BINOP), binopr(opr) {}
-Expression::Expression(unop const& opr) : type(exprtype::UNOP), unopr(opr) {}
-Expression::Expression(Expression const* expr) : type(exprtype::RETURN) { ret = new Expression(*expr); }
+Expression::Expression(yy::location loc) : type(exprtype::NONE), loc(loc) {}
+Expression::Expression(int const& num, yy::location loc) : type(exprtype::NUM), num(num), loc(loc) {}
+Expression::Expression(blck_stmt const& body, yy::location loc) : type(exprtype::BODY), body(body), loc(loc) {}
+Expression::Expression(std::string const& ident, yy::location loc) : type(exprtype::IDENT), ident(ident), loc(loc) {}
+Expression::Expression(ternop const& opr, yy::location loc) : type(exprtype::TERNOP), ternopr(opr), loc(loc) {}
+Expression::Expression(binop const& opr, yy::location loc) : type(exprtype::BINOP), binopr(opr), loc(loc) {}
+Expression::Expression(unop const& opr, yy::location loc) : type(exprtype::UNOP), unopr(opr), loc(loc) {}
+Expression::Expression(Expression const* expr, yy::location loc) : type(exprtype::RETURN), loc(loc) { ret = new Expression(*expr); }
 Expression::Expression(Expression const& expr) { *this = expr; }
 Expression::~Expression() = default;
 
@@ -115,8 +116,8 @@ std::string op2str(op const& opr) {
         case op::BNOT: return "~";
         case op::CALL: return "()";
         case op::AS: return "as";
+        default: return "[invalid]";
         }
-        return "[invalid]";
 }
 
 void Expression::dump() const {
@@ -175,7 +176,9 @@ void Expression::dump() const {
 }
 
 FuncDecl::FuncDecl() {}
-FuncDecl::FuncDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Expression const& body) : fnid(fnid), args(args), body(body) {}
+FuncDecl::FuncDecl(yy::location loc): loc(loc) {}
+FuncDecl::FuncDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Expression const& body, yy::location loc) :
+    fnid(fnid), args(args), body(body), loc(loc) {}
 FuncDecl::FuncDecl(FuncDecl const& fndecl) { *this = fndecl; }
 FuncDecl::~FuncDecl()       = default;
 FuncDecl& FuncDecl::operator=(FuncDecl const& fndecl) {

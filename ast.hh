@@ -1,4 +1,5 @@
 #pragma once
+#include "location.hh"
 #include <optional>
 #include <string>
 #include <utility>
@@ -70,15 +71,17 @@ namespace ast {
                 int num;
                 blck_stmt body;
                 Expression* ret;
+                yy::location loc;
                 Expression();
-                Expression(int const& num);
-                Expression(blck_stmt const& body);
-                Expression(std::string const& ident);
-                Expression(ternop const& opr);
-                Expression(binop const& opr);
-                Expression(unop const& opr);
+                Expression(yy::location loc);
+                Expression(int const& num, yy::location loc);
+                Expression(blck_stmt const& body, yy::location loc);
+                Expression(std::string const& ident, yy::location loc);
+                Expression(ternop const& opr, yy::location loc);
+                Expression(binop const& opr, yy::location loc);
+                Expression(unop const& opr, yy::location loc);
                 Expression(Expression const& expr);
-                Expression(Expression const* expr);
+                Expression(Expression const* expr, yy::location loc);
                 ~Expression();
                 Expression& operator=(Expression const& expr);
                 void dump() const;
@@ -88,10 +91,10 @@ namespace ast {
                 typed_ident fnid;
                 std::vector<typed_ident> args;
                 Expression body;
+                yy::location loc;
                 FuncDecl();
-                FuncDecl(typed_ident const& fnid,
-                         std::vector<typed_ident> const& args,
-                         Expression const& body);
+                FuncDecl(yy::location loc);
+                FuncDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Expression const& body, yy::location loc);
                 FuncDecl(FuncDecl const& fndecl);
                 FuncDecl& operator=(FuncDecl const& fndecl);
                 ~FuncDecl();
