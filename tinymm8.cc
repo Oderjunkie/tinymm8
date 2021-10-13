@@ -3,7 +3,7 @@
 
 bool driver::pipe_mode;
 
-driver::driver::driver() : trace_parsing(false), trace_scanning(false) {
+driver::driver::driver() : trace_scanning(false), trace_parsing(false) {
         vars["one"] = 1;
         vars["two"] = 2;
 }
