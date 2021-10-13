@@ -45,7 +45,9 @@
 #include <utility>
 #include <optional>
 #include <string>
+#include <fstream>
 #include "ast.hh"
+#include "irast.hh"
 using std::string;
 namespace driver {
     class driver;
@@ -64,10 +66,22 @@ using namespace ast;
 done[res]: library[val] YYEOF {
 	@res = @val;
 	$res = $val;
-	std::for_each($res.begin(), $res.end(), [](FuncDecl& fndecl){
-		fndecl.dump();
-		emitter::emit(fndecl);
+	std::vector<irast::Stmt*> funcs; // absolute hack, TODO: get rid of this pointer
+	std::for_each($res.begin(), $res.end(), [&funcs](FuncDecl& fndecl){
+		funcs.push_back(irast::parsefn(fndecl));
 	});
+	std::ofstream output;
+	if (driver::pipe_mode)
+		output.open("a.out");
+	std::for_each(funcs.begin(), funcs.end(), [&output](irast::Stmt* stmt){
+		auto const& [code, name] = stmt->emit();
+		if (driver::pipe_mode)
+			std::cout << code << std::endl;
+		else
+			output << code << std::endl;
+	});
+	if (driver::pipe_mode)
+		output.close();
 };
 
 library[res]: library[self] decl[el] { $res = $self; $res.push_back($el); @res = @self + @el; }
