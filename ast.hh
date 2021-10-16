@@ -12,7 +12,6 @@ namespace ast {
                 OVER,
                 PLUS,
                 MINUS,
-                FOVER,
                 ASSGN,
                 EQ,
                 NEQ,
@@ -31,10 +30,17 @@ namespace ast {
                 CALL,
                 TERN,
                 DEREF,
-                ADROF
+                ADROF,
+                UNPLUS,
+                UNMINUS,
+                PREINC,
+                PREDEC,
+                POSTINC,
+                POSTDEC
         };
         class Node {};
         class Expression;
+        class VarDecl;
         struct ternop {
                 Expression* lhs;
                 Expression* mhs;
@@ -50,7 +56,8 @@ namespace ast {
                 Expression* val;
                 op opr;
         };
-        using blck_stmt   = std::vector<Expression*>;
+        using blck_stmt   = std::vector<Node*>;
+        using typed_ident = std::pair<std::optional<std::string>, std::string>;
         enum class exprtype {
                 NONE,
                 NUM,
@@ -60,6 +67,19 @@ namespace ast {
                 UNOP,
                 BODY,
                 RETURN
+        };
+        enum class nodetype { EXPR,
+                              VARDECL };
+        class VarDecl : public Node {
+              protected:
+                typed_ident lhs;
+                Expression rhs;
+              public:
+	  VarDecl();
+	  VarDecl(typed_ident const& lhs, Expression const& rhs);
+	  VarDecl(Vardecl const& decl);
+	  VarDecl& operator=(Vardecl const& decl);
+	  ~VarDecl();
         };
         class Expression : public Node {
               protected:
@@ -85,5 +105,6 @@ namespace ast {
                 ~Expression();
                 Expression& operator=(Expression const& expr);
                 void dump();
+                nodetype nodeType();
         };
 }

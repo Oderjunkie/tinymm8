@@ -1,7 +1,14 @@
 #include "ast.hh"
 #include <iostream>
+#include <stdexcept>
 
 using namespace ast; // Fight me =P
+
+Vardecl::Vardecl() {}
+Vardecl::Vardecl(typed_ident const& lhs, Expression const& rhs) :
+  lhs(lhs) rhs(rhs) {}
+Vardecl::Vardecl(Vardecl const& decl) : lhs(lhs) rhs(rhs) {}
+Vardecl::~Vardecl() = default;
 
 Expression::Expression() :
   type(exprtype::NONE) {}
@@ -30,6 +37,9 @@ Expression::operator=(Expression const& expr) {
                 case exprtype::NUM: this->num = expr.num; break;
                 case exprtype::BODY:
                         this->body = expr.body;
+                        std::for_each(this->body.begin(), this->body.end(),
+                                      [](Expression*& expr) { expr = new Expression(*expr); });
+                        this->body = blck_stmt(this->body);
                         break;
                 case exprtype::IDENT: this->ident = expr.ident; break;
                 case exprtype::RETURN: this->ret = expr.ret; break;
@@ -60,16 +70,58 @@ Expression::operator=(Expression const& expr) {
         return *this;
 }
 
+bool
+isunoppre(op opr) {
+        switch (opr) {
+                case op::LNOT:
+                case op::BNOT:
+                case op::DEREF:
+                case op::ADROF:
+                case op::UNPLUS:
+                case op::UNMINUS:
+                case op::PREINC:
+                case op::PREDEC: return true;
+                case op::POSTINC:
+                case op::POSTDEC: return false;
+                case op::COMMA:
+                case op::TIMES:
+                case op::OVER:
+                case op::PLUS:
+                case op::MINUS:
+                case op::ASSGN:
+                case op::EQ:
+                case op::NEQ:
+                case op::GT:
+                case op::GTE:
+                case op::LT:
+                case op::LTE:
+                case op::MOD:
+                case op::BAND:
+                case op::BOR:
+                case op::BXOR:
+                case op::LAND:
+                case op::LOR:
+                case op::CALL:
+                case op::TERN: throw std::invalid_argument("Received binop instead of a unop.");
+        }
+        return false;
+}
+
 std::string
 op2str(op opr) {
         switch (opr) {
                 case op::COMMA: return ",";
-                case op::TIMES:
+                case op::TIMES: // efficiency 200
                 case op::DEREF: return "*";
                 case op::OVER: return "/";
-                case op::PLUS: return "+";
-                case op::MINUS: return "-";
-                case op::FOVER: return "//";
+                case op::PLUS: // efficiency 300
+                case op::UNPLUS: return "+";
+                case op::POSTINC: // efficiency 400
+                case op::PREINC: return "++";
+                case op::POSTDEC: // efficiency 500
+                case op::PREDEC: return "--";
+                case op::MINUS: // efficiency 600
+                case op::UNMINUS: return "-";
                 case op::ASSGN: return "=";
                 case op::EQ: return "==";
                 case op::NEQ: return "!=";
@@ -78,7 +130,7 @@ op2str(op opr) {
                 case op::LT: return "<";
                 case op::LTE: return "<=";
                 case op::MOD: return "%";
-                case op::BAND:
+                case op::BAND: // efficiency 700
                 case op::ADROF: return "&";
                 case op::BOR: return "|";
                 case op::BXOR: return "^";
@@ -93,6 +145,10 @@ op2str(op opr) {
 
 void
 Expression::dump() {
+        if (this == (Expression*)0) {
+                std::cout << "\e[1;31m[uhhh crap]\e[m";
+                return;
+        }
         switch (this->type) {
                 case exprtype::NUM: std::cout << "\e[1;36m" << this->num << "\e[m"; return;
                 case exprtype::BODY:
@@ -106,8 +162,18 @@ Expression::dump() {
                 case exprtype::IDENT: std::cout << "\e[1;32m" << this->ident << "\e[m"; return;
                 case exprtype::BINOP:
                         this->binopr.lhs->dump();
-                        std::cout << " " << op2str(this->binopr.opr) << " ";
-                        this->binopr.rhs->dump();
+                        if (this->binopr.opr == op::CALL) {
+                                std::cout << "(";
+                                std::for_each(this->binopr.rhs->body.begin(),
+                                              this->binopr.rhs->body.end(), [](Expression* expr) {
+                                                      expr->dump();
+                                                      std::cout << ", ";
+                                              });
+                                std::cout << ")";
+                        } else {
+                                std::cout << " " << op2str(this->binopr.opr) << " ";
+                                this->binopr.rhs->dump();
+                        }
                         return;
                 case exprtype::TERNOP:
                         this->ternopr.lhs->dump();
@@ -117,10 +183,19 @@ Expression::dump() {
                         this->ternopr.rhs->dump();
                         return;
                 case exprtype::UNOP:
-                        std::cout << op2str(this->unopr.opr);
-                        this->unopr.val->dump();
+                        if (isunoppre(this->unopr.opr)) {
+                                std::cout << op2str(this->unopr.opr);
+                                this->unopr.val->dump();
+                        } else {
+                                this->unopr.val->dump();
+                                std::cout << op2str(this->unopr.opr);
+                        }
                         return;
-                case exprtype::NONE: std::cout << "[null]"; return;
-                default: std::cout << "[unknown]"; return;
+                case exprtype::RETURN:
+                        std::cout << "return ";
+                        this->ret->dump();
+                        return;
+                case exprtype::NONE: std::cout << "\e[1;30m[null]\e[m"; return;
+                default: std::cout << "\e[31m[unknown]\e[m"; return;
         }
 }
