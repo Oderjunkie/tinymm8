@@ -22,3 +22,5 @@ expr: IDENT / NUMBER
 function: type? IDENT(type? arg,...) expr (yes, a compound statement is an expression in tinymm8, and yes, `main() return;` is valid.)
 lambda: type? (type? arg,...) expr
 type: u8/u16/i8/i16/user-defined
+
+=== 
