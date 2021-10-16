@@ -1,6 +1,0 @@
-(delete-other-windows)
-(find-file "tinymm8.y")
-(split-window-right)
-(other-window 1)
-(terminal)
-(other-window 1)
