@@ -2,3 +2,4 @@ compiler
 lexer.??
 parser.??
 location.hh
+.emacs-setup.el
