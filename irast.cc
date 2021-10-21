@@ -230,19 +230,19 @@ pair<string, string> Func::emit() const {
         std::stringstream output_args;
         auto const& [fnname, fntype] = this->fnsig;
         output << "\e[35m" << fntype << "\e[m \e[1;32m" << fnname << "\e[m(";
-        std::for_each(this->args.begin(), this->args.end(), [&output_args](pair<string, string> const& arg) {
+        for (auto const& arg : this->args) {
                 auto const& [argname, argtype] = arg;
                 output_args << "\e[35m" << argtype << "\e[m @\e[1;32m" << argname << "\e[m%0, ";
-        });
+        };
         auto output_string_args        = output_args.str();
         auto output_string_args_length = output_string_args.size();
         if (output_string_args_length) output_string_args.erase(output_string_args_length - 2);
         output << output_string_args << ") {" << std::endl;
-        std::for_each(this->body.begin(), this->body.end(), [&output](Stmt* const& stmt) {
+        for (auto const& stmt : this->body) {
                 auto const& [prep, name] = stmt->emit();
                 // output << "    " << replaceAll(prep, '\n', "\n    ");
                 output << prep;
-        });
+        };
         output << "}" << std::endl;
         return std::make_pair(output.str(), fnname);
 }
@@ -251,12 +251,12 @@ string Func::dump() const {
         std::stringstream output;
         auto const& [fnname, fntype] = this->fnsig;
         output << "Func({" << fnname << ", " << fntype << "}, [";
-        std::for_each(this->args.begin(), this->args.end(), [&output](pair<string, string> const& arg) {
+        for (auto const& arg : this->args) {
                 auto const& [argname, argtype] = arg;
                 output << "{\"" << argname << "\", \"" << argtype << "\"},";
-        });
+        };
         output << "], [";
-        std::for_each(this->body.begin(), this->body.end(), [&output](Stmt* const& stmt) { output << stmt->dump() << ","; });
+        for (auto const& stmt : this->body) { output << stmt->dump() << ","; }
         return output.str();
 }
 
@@ -418,10 +418,10 @@ BlockStmt::BlockStmt(BlockStmt const& blckstmt) { *this = blckstmt; }
 BlockStmt::BlockStmt(vector<Stmt*> body) : body(body) {}
 pair<string, string> BlockStmt::emit() const {
         std::stringstream output;
-        std::for_each(this->body.begin(), this->body.end(), [&output](Stmt* const& stmt) {
+        for (auto const& stmt : this->body) {
                 auto const& [prep, name] = stmt->emit();
                 output << prep;
-        });
+        };
         return std::make_pair(output.str(), "");
 }
 string BlockStmt::dump() const { return "BlockStmt()"; }

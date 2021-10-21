@@ -190,10 +190,10 @@ FuncDecl& FuncDecl::operator=(FuncDecl const& fndecl) {
 void FuncDecl::dump() {
         auto const& [fntype, fnname] = this->fnid;
         std::cout << "\e[35m" << fntype << "\e[m \e[1;32m" << fnname << "\e[m(";
-        std::for_each(this->args.begin(), this->args.end(), [](typed_ident& arg) {
+        for (auto const& arg : this->args) {
                 auto const& [atype, aname] = arg;
                 std::cout << "\e[35m" << atype << "\e[m \e[1;32m" << aname << "\e[m, ";
-        });
+        }
         std::cout << ") ";
         this->body.dump();
         std::cout << "\n";
