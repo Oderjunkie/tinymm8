@@ -91,10 +91,10 @@ namespace irast {
               public:
                 std::pair<std::string, std::string> fnsig;
                 std::vector<std::pair<std::string, std::string>> args;
-                std::vector<Stmt*> body;
+                Stmt* body;
                 Func();
                 Func(Func const& func);
-                Func(std::pair<std::string, std::string> fnsig, std::vector<std::pair<std::string, std::string>> args, std::vector<Stmt*> body);
+                Func(std::pair<std::string, std::string> fnsig, std::vector<std::pair<std::string, std::string>> args, Stmt* body);
                 std::pair<std::string, std::string> emit() const;
                 std::string dump() const;
                 std::string type() const;

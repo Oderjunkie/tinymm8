@@ -221,7 +221,7 @@ string Arithmetic::type() const {
 
 Func::Func() {}
 Func::Func(Func const& func) { *this = func; }
-Func::Func(pair<string, string> fnsig, vector<pair<string, string>> args, vector<Stmt*> body) : fnsig(fnsig), args(args), body(body) {}
+Func::Func(pair<string, string> fnsig, vector<pair<string, string>> args, Stmt* body) : fnsig(fnsig), args(args), body(body) {}
 
 // std::string replaceAll(std::string& src, std::string);
 
@@ -238,11 +238,7 @@ pair<string, string> Func::emit() const {
         auto output_string_args_length = output_string_args.size();
         if (output_string_args_length) output_string_args.erase(output_string_args_length - 2);
         output << output_string_args << ") {" << std::endl;
-        for (auto const& stmt : this->body) {
-                auto const& [prep, name] = stmt->emit();
-                // output << "    " << replaceAll(prep, '\n', "\n    ");
-                output << prep;
-        };
+        this->body->emit();
         output << "}" << std::endl;
         return std::make_pair(output.str(), fnname);
 }
@@ -256,7 +252,7 @@ string Func::dump() const {
                 output << "{\"" << argname << "\", \"" << argtype << "\"},";
         };
         output << "], [";
-        for (auto const& stmt : this->body) { output << stmt->dump() << ","; }
+        output << this->body->dump();
         return output.str();
 }
 
@@ -424,7 +420,13 @@ pair<string, string> BlockStmt::emit() const {
         };
         return std::make_pair(output.str(), "");
 }
-string BlockStmt::dump() const { return "BlockStmt()"; }
+string BlockStmt::dump() const {
+        std::stringstream output;
+        output << "BlockStmt(";
+        for (auto const& stmt : this->body) { output << stmt->dump() << ","; }
+        output << ")";
+        return output.str();
+}
 string BlockStmt::type() const { return "void"; }
 
 optional<Stmt*> irast::parseexpr(ast::Expression const& expr) {
