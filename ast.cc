@@ -4,50 +4,7 @@
 
 using namespace ast; // Fight me =P
 
-Expression::Expression() : type(exprtype::NONE) {}
-Expression::Expression(yy::location loc) : type(exprtype::NONE), loc(loc) {}
-Expression::Expression(int const& num, yy::location loc) : type(exprtype::NUM), num(num), loc(loc) {}
-Expression::Expression(blck_stmt const& body, yy::location loc) : type(exprtype::BODY), body(body), loc(loc) {}
-Expression::Expression(std::string const& ident, yy::location loc) : type(exprtype::IDENT), ident(ident), loc(loc) {}
-Expression::Expression(ternop const& opr, yy::location loc) : type(exprtype::TERNOP), ternopr(opr), loc(loc) {}
-Expression::Expression(binop const& opr, yy::location loc) : type(exprtype::BINOP), binopr(opr), loc(loc) {}
-Expression::Expression(unop const& opr, yy::location loc) : type(exprtype::UNOP), unopr(opr), loc(loc) {}
-Expression::Expression(Expression const* expr, yy::location loc) : type(exprtype::RETURN), loc(loc) { ret = new Expression(*expr); }
-Expression::Expression(Expression const& expr) { *this = expr; }
-Expression::~Expression() = default;
-
-Expression& Expression::operator=(Expression const& expr) {
-        switch (this->type = expr.type) {
-        case exprtype::NUM: this->num = expr.num; break;
-        case exprtype::BODY:
-                this->body = expr.body;
-                std::for_each(this->body.begin(), this->body.end(), [](Expression*& expr) { expr = new Expression(*expr); });
-                this->body = blck_stmt(this->body);
-                break;
-        case exprtype::IDENT: this->ident = expr.ident; break;
-        case exprtype::RETURN: this->ret = expr.ret; break;
-        case exprtype::TERNOP:
-                this->ternopr.lhs = new Expression(std::move(*expr.ternopr.lhs));
-                this->ternopr.mhs = new Expression(std::move(*expr.ternopr.mhs));
-                this->ternopr.rhs = new Expression(std::move(*expr.ternopr.rhs));
-                this->ternopr.opr = expr.ternopr.opr;
-                break;
-        case exprtype::BINOP:
-                this->binopr.lhs = new Expression(std::move(*expr.binopr.lhs));
-                this->binopr.rhs = new Expression(std::move(*expr.binopr.rhs));
-                this->binopr.opr = expr.binopr.opr;
-                break;
-        case exprtype::UNOP:
-                this->unopr.val = new Expression(std::move(*expr.unopr.val));
-                this->unopr.opr = expr.unopr.opr;
-                // efficiency 100
-        case exprtype::NONE:
-        default: break;
-        }
-        return *this;
-}
-
-bool isunoppre(op const& opr) {
+bool is_unop_pre(op const& opr) {
         switch (opr) {
         case op::LNOT:
         case op::BNOT:
@@ -78,13 +35,12 @@ bool isunoppre(op const& opr) {
         case op::LAND:
         case op::LOR:
         case op::CALL:
-        case op::TERN:
         case op::AS: throw std::invalid_argument("Received binop instead of a unop.");
         }
         return false;
 }
 
-std::string op2str(op const& opr) {
+std::string op_to_str(op const& opr) {
         switch (opr) {
         case op::COMMA: return ",";
         case op::TIMES: // efficiency 200
@@ -116,69 +72,95 @@ std::string op2str(op const& opr) {
         case op::BNOT: return "~";
         case op::CALL: return "()";
         case op::AS: return "as";
-        default: return "[invalid]";
+        default: throw std::invalid_argument("Received binop instead of a unop.");
         }
+        return "This message should not appear. What should i do if it does...?";
 }
 
-void Expression::dump() const {
-        if (this == (Expression*)0) {
-                std::cout << "\e[1;31m[uhhh crap]\e[m";
-                return;
-        }
-        switch (this->type) {
-        case exprtype::NUM: std::cout << "\e[1;36m" << this->num << "\e[m"; return;
-        case exprtype::BODY:
-                std::cout << "{ ";
-                std::for_each(this->body.begin(), this->body.end(), [](Expression const* expr) {
-                        expr->dump();
-                        std::cout << "; ";
-                });
-                std::cout << "}";
-                return;
-        case exprtype::IDENT: std::cout << "\e[1;32m" << this->ident << "\e[m"; return;
-        case exprtype::BINOP:
-                this->binopr.lhs->dump();
-                if (this->binopr.opr == op::CALL) {
-                        std::cout << "(";
-                        std::for_each(this->binopr.rhs->body.begin(), this->binopr.rhs->body.end(), [](Expression const* expr) {
-                                expr->dump();
-                                std::cout << ", ";
-                        });
-                        std::cout << ")";
-                } else {
-                        std::cout << " " << op2str(this->binopr.opr) << " ";
-                        this->binopr.rhs->dump();
-                }
-                return;
-        case exprtype::TERNOP:
-                this->ternopr.lhs->dump();
-                std::cout << " ? ";
-                this->ternopr.mhs->dump();
-                std::cout << " : ";
-                this->ternopr.rhs->dump();
-                return;
-        case exprtype::UNOP:
-                if (isunoppre(this->unopr.opr)) {
-                        std::cout << op2str(this->unopr.opr);
-                        this->unopr.val->dump();
-                } else {
-                        this->unopr.val->dump();
-                        std::cout << op2str(this->unopr.opr);
-                }
-                return;
-        case exprtype::RETURN:
-                std::cout << "return ";
-                this->ret->dump();
-                return;
-        case exprtype::NONE: std::cout << "\e[1;30mnull\e[m"; return;
-        default: std::cout << "\e[31m[unknown]\e[m"; return;
-        }
+TernOp::TernOp() {}
+TernOp::TernOp(yy::location loc) : loc(loc) {}
+TernOp::TernOp(Node* lhs, Node* mhs, Node* rhs, yy::location loc) : lhs(lhs), mhs(mhs), rhs(rhs), loc(loc) {
+        if (this->lhs == nullptr || this->mhs == nullptr || this->rhs == nullptr) throw std::invalid_argument("Null pointer given to ast::TernOp.");
 }
+void TernOp::dump() const {
+        this->lhs->dump();
+        std::cout << "?";
+        this->mhs->dump();
+        std::cout << ":";
+        this->rhs->dump();
+}
+irast::Stmt* TernOp::parse() const { return new irast::IfStmt(this->lhs->parse(), this->mhs->parse(), this->rhs->parse()); }
+
+BinOp::BinOp() {}
+BinOp::BinOp(yy::location loc) : loc(loc) {}
+BinOp::BinOp(Node* lhs, op opr, Node* rhs, yy::location loc) : lhs(lhs), opr(opr), rhs(rhs), loc(loc) {
+        if (this->lhs == nullptr || this->rhs == nullptr) throw std::invalid_argument("Null pointer given to ast::BinOp.");
+}
+void BinOp::dump() const {
+        this->lhs->dump();
+        std::cout << " " << op_to_str(this->opr) << " ";
+        this->rhs->dump();
+}
+irast::Stmt* BinOp::parse() const { return new irast::Null(); }
+
+UnOp::UnOp() {}
+UnOp::UnOp(yy::location loc) : loc(loc) {}
+UnOp::UnOp(Node* val, op opr, yy::location loc) : val(val), opr(opr), loc(loc) {
+        if (this->val == nullptr) throw std::invalid_argument("Null pointer given to ast::UnOp.");
+}
+void UnOp::dump() const {
+        auto ispre = is_unop_pre(this->opr);
+        if (ispre) std::cout << op_to_str(this->opr);
+        this->val->dump();
+        if (!ispre) std::cout << op_to_str(this->opr);
+}
+irast::Stmt* UnOp::parse() const { return new irast::Null(); }
+
+Block::Block() {}
+Block::Block(yy::location loc) : loc(loc) {}
+Block::Block(blck_stmt body, yy::location loc) : body(body), loc(loc) {
+        for (auto const& stmt : this->body)
+                if (stmt == nullptr) throw std::invalid_argument("Null pointer given to ast::Block.");
+}
+void Block::dump() const {
+        std::cout << "{";
+        for (auto const& stmt : this->body) stmt->dump();
+        std::cout << "}";
+}
+irast::Stmt* Block::parse() const {
+        std::vector<irast::Stmt*> newbody;
+        std::transform(this->body.cbegin(), this->body.cend(), newbody.begin(), [](Node* const& stmt) { return stmt->parse(); });
+        return new irast::BlockStmt(newbody);
+}
+
+Ident::Ident() {}
+Ident::Ident(yy::location loc) : loc(loc) {}
+Ident::Ident(std::string ident, yy::location loc) : ident(ident), loc(loc) {}
+void Ident::dump() const { std::cout << this->ident; }
+irast::Stmt* Ident::parse() const { return new irast::Ident(this->ident); }
+
+Number::Number() {}
+Number::Number(yy::location loc) : loc(loc) {}
+Number::Number(int num, yy::location loc) : num(num), loc(loc) {}
+void Number::dump() const { std::cout << this->num; }
+irast::Stmt* Number::parse() const { return new irast::Integer(this->num); }
+
+Return::Return() {}
+Return::Return(yy::location loc) : loc(loc) {}
+Return::Return(Node* retval, yy::location loc) : retval(retval), loc(loc) {}
+void Return::dump() const { std::cout << "return " << this->retval << ";"; }
+irast::Stmt* Return::parse() const { return new irast::ReturnStmt(this->retval->parse()); }
+
+Null::Null() {}
+Null::Null(yy::location loc) : loc(loc) {}
+void Null::dump() const { std::cout << "null"; }
+irast::Stmt* Null::parse() const { return new irast::Null(); }
 
 FuncDecl::FuncDecl() {}
-FuncDecl::FuncDecl(yy::location loc): loc(loc) {}
-FuncDecl::FuncDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Expression const& body, yy::location loc) :
-    fnid(fnid), args(args), body(body), loc(loc) {}
+FuncDecl::FuncDecl(yy::location loc) : loc(loc) {}
+FuncDecl::FuncDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Node* const& body, yy::location loc) : fnid(fnid), args(args), body(body), loc(loc) {
+        if (this->body == nullptr) throw std::invalid_argument("Null pointer given to ast::FuncDecl.");
+}
 FuncDecl::FuncDecl(FuncDecl const& fndecl) { *this = fndecl; }
 FuncDecl::~FuncDecl()       = default;
 FuncDecl& FuncDecl::operator=(FuncDecl const& fndecl) {
@@ -187,7 +169,7 @@ FuncDecl& FuncDecl::operator=(FuncDecl const& fndecl) {
         this->body = fndecl.body;
         return *this;
 }
-void FuncDecl::dump() {
+void FuncDecl::dump() const {
         auto const& [fntype, fnname] = this->fnid;
         std::cout << "\e[35m" << fntype << "\e[m \e[1;32m" << fnname << "\e[m(";
         for (auto const& arg : this->args) {
@@ -195,6 +177,7 @@ void FuncDecl::dump() {
                 std::cout << "\e[35m" << atype << "\e[m \e[1;32m" << aname << "\e[m, ";
         }
         std::cout << ") ";
-        this->body.dump();
+        this->body->dump();
         std::cout << "\n";
 }
+irast::Stmt* FuncDecl::parse() const { return new irast::Func(this->fnid, this->args, this->body->parse()); }

@@ -81,7 +81,7 @@ string op2dump(Operator op) {
         return "This message should not appear, if it does, it's a bug.";
 }
 
-string op2dump(ast::op op) {
+/*string op2dump(ast::op op) {
         switch (op) {
         case ast::op::COMMA: return "ast::op::COMMA";
         case ast::op::TIMES: return "ast::op::TIMES";
@@ -167,7 +167,7 @@ Operator astop2irop(ast::op opr) {
         default: throw std::invalid_argument("Can't convert to IR operator. " + op2dump(opr));
         }
         return Operator::PLUS;
-}
+}*/
 
 Arithmetic::Arithmetic() {}
 Arithmetic::Arithmetic(Arithmetic const& arth) { *this = arth; }
@@ -429,7 +429,7 @@ string BlockStmt::dump() const {
 }
 string BlockStmt::type() const { return "void"; }
 
-optional<Stmt*> irast::parseexpr(ast::Expression const& expr) {
+/*optional<Stmt*> irast::parseexpr(ast::Expression const& expr) {
         switch (expr.type) {
         case ast::exprtype::BINOP:
                 // if (expr.binopr.opr == ast::op::TERNOP)
@@ -468,9 +468,9 @@ optional<Stmt*> irast::parseexpr(ast::Expression const& expr) {
         default: return new Null();
         }
         return new Comment("This message should not appear, should it? Tell me if you see it.");
-}
+}*/
 
-Stmt* irast::parsefn(ast::FuncDecl const& fndecl) {
+/*Stmt* irast::parsefn(ast::FuncDecl const& fndecl) {
         auto const& [fntype, fnname] = fndecl.fnid;
         std::unordered_map<string, Symbol> fnlocals;
         vector<pair<string, string>> argnames = {};
@@ -510,4 +510,4 @@ Stmt* irast::parsefn(ast::FuncDecl const& fndecl) {
         auto ret = new Func(std::make_pair(fnname, fntype), argnames, outbody);
         call_stack.pop_back();
         return ret;
-}
+}*/

@@ -1,10 +1,11 @@
 #pragma once
-#include "ast.hh"
+// #include "ast.hh"
 #include <map>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <variant>
+#include <vector>
 
 namespace irast {
         // symbol: [type, count]
@@ -147,6 +148,6 @@ namespace irast {
                 std::string dump() const;
                 std::string type() const;
         };
-        Stmt* parsefn(ast::FuncDecl const& fndecl);
-        std::optional<Stmt*> parseexpr(ast::Expression const& expr);
+        // Stmt* parsefn(ast::FuncDecl const& fndecl);
+        // std::optional<Stmt*> parseexpr(ast::Expression const& expr);
 } // namespace irast

@@ -1,4 +1,5 @@
 #pragma once
+#include "irast.hh"
 #include "location.hh"
 #include <optional>
 #include <string>
@@ -29,7 +30,6 @@ namespace ast {
                 LNOT,
                 BNOT,
                 CALL,
-                TERN,
                 DEREF,
                 ADROF,
                 UNPLUS,
@@ -40,64 +40,119 @@ namespace ast {
                 POSTDEC,
                 AS
         };
-        class Node {};
-        class Expression;
-        class VarDecl;
-        struct ternop {
-                Expression* lhs;
-                Expression* mhs;
-                Expression* rhs;
-                op opr;
-        };
-        struct binop {
-                Expression* lhs;
-                Expression* rhs;
-                op opr;
-        };
-        struct unop {
-                Expression* val;
-                op opr;
-        };
-        using blck_stmt   = std::vector<Expression*>;
-        using typed_ident = std::pair<std::string, std::string>;
-        enum class exprtype { NONE, NUM, IDENT, TERNOP, BINOP, UNOP, BODY, RETURN };
-        class Expression : public Node {
+        class Node {
               public:
-                exprtype type;
-                ternop ternopr;
-                binop binopr;
-                unop unopr;
-                std::string ident;
-                int num;
-                blck_stmt body;
-                Expression* ret;
+                virtual void dump() const = 0;
                 yy::location loc;
-                Expression();
-                Expression(yy::location loc);
-                Expression(int const& num, yy::location loc);
-                Expression(blck_stmt const& body, yy::location loc);
-                Expression(std::string const& ident, yy::location loc);
-                Expression(ternop const& opr, yy::location loc);
-                Expression(binop const& opr, yy::location loc);
-                Expression(unop const& opr, yy::location loc);
-                Expression(Expression const& expr);
-                Expression(Expression const* expr, yy::location loc);
-                ~Expression();
-                Expression& operator=(Expression const& expr);
+                virtual irast::Stmt* parse() const = 0;
+        };
+        class TernOp;
+        class BinOp;
+        class UnOp;
+        class Ident;
+        class Number;
+        class Null;
+        class Return;
+        class Block;
+        class FuncDecl;
+        using typed_ident = std::pair<std::string, std::string>;
+        using blck_stmt   = std::vector<Node*>;
+        class TernOp : public Node {
+              public:
+                Node* lhs;
+                Node* mhs;
+                Node* rhs;
+                yy::location loc;
+                TernOp();
+                TernOp(yy::location loc);
+                TernOp(Node* lhs, Node* mhs, Node* rhs, yy::location loc);
                 void dump() const;
+                irast::Stmt* parse() const;
+        };
+        class BinOp : public Node {
+              public:
+                Node* lhs;
+                op opr;
+                Node* rhs;
+                yy::location loc;
+                BinOp();
+                BinOp(yy::location loc);
+                BinOp(Node* lhs, op opr, Node* rhs, yy::location loc);
+                void dump() const;
+                irast::Stmt* parse() const;
+        };
+        class UnOp : public Node {
+              public:
+                Node* val;
+                op opr;
+                yy::location loc;
+                UnOp();
+                UnOp(yy::location loc);
+                UnOp(Node* val, op opr, yy::location loc);
+                void dump() const;
+                irast::Stmt* parse() const;
+        };
+        class Block : public Node {
+              public:
+                blck_stmt body;
+                yy::location loc;
+                Block();
+                Block(yy::location loc);
+                Block(blck_stmt body, yy::location loc);
+                void dump() const;
+                irast::Stmt* parse() const;
+        };
+        class Ident : public Node {
+              public:
+                std::string ident;
+                yy::location loc;
+                Ident();
+                Ident(yy::location loc);
+                Ident(std::string ident, yy::location loc);
+                void dump() const;
+                irast::Stmt* parse() const;
+        };
+        class Number : public Node {
+              public:
+                int num;
+                yy::location loc;
+                Number();
+                Number(yy::location loc);
+                Number(int num, yy::location loc);
+                void dump() const;
+                irast::Stmt* parse() const;
+        };
+        class Return : public Node {
+              public:
+                Node* retval;
+                yy::location loc;
+                Return();
+                Return(yy::location loc);
+                Return(Node* retval, yy::location loc);
+                void dump() const;
+                irast::Stmt* parse() const;
+        };
+        class Null : public Node {
+              public:
+                yy::location loc;
+                Null();
+                Null(yy::location loc);
+                void dump() const;
+                irast::Stmt* parse() const;
         };
         class FuncDecl : public Node {
               public:
                 typed_ident fnid;
                 std::vector<typed_ident> args;
-                Expression body;
+                Node* body;
                 yy::location loc;
                 FuncDecl();
                 FuncDecl(yy::location loc);
-                FuncDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Expression const& body, yy::location loc);
+                FuncDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Node* const& body, yy::location loc);
                 FuncDecl(FuncDecl const& fndecl);
                 FuncDecl& operator=(FuncDecl const& fndecl);
                 ~FuncDecl();
-                void dump();
+                void dump() const;
+                irast::Stmt* parse() const;
         };
 } // namespace ast
