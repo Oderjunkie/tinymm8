@@ -143,10 +143,10 @@ expr_no_comma[res]: expr_no_comma[lhs] "+"       expr_no_comma[rhs]             
 |                                      "!"[opr]  expr_no_comma[val]                        { @res = @opr + @val; $res = new   UnOp($val, op::LNOT,          @res); }
 |                                      "*"[opr]  expr_no_comma[val]                        { @res = @opr + @val; $res = new   UnOp($val, op::DEREF,         @res); } %prec DEREF
 |                                      "&"[opr]  expr_no_comma[val]                        { @res = @opr + @val; $res = new   UnOp($val, op::ADROF,         @res); } %prec ADDROF
-|                   expr_no_comma[lhs] "?"       expr_no_comma[mhs] ":" expr_no_comma[rhs] { @res = @lhs + @rhs; $res = new TernOp($lhs,    $mhs,    $rhs,  @res); }
-/*|                   expr_no_comma[fnn] "("       expr_args[fna] ")"[opr]                   { @res = @fnn + @opr; $res = new  BinOp($fnn,    $fna,       op::CALL,    @res); }*/
-|                   expr_no_comma[lhs] "as"      expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = new  BinOp($lhs, op::AS,     $rhs,  @res); }
-|                   "("[lhs] expr[val] ")"[rhs]                                            { @res = @lhs + @rhs; $res = $val;                                      }
+|                   expr_no_comma[lhs] "?"       expr_no_comma[mhs] ":" expr_no_comma[rhs] { @res = @lhs + @rhs; $res = new TernOp($lhs,    $mhs,     $rhs, @res); }
+|                   expr_no_comma[fnn] "("       expr_args[fna]     ")"[opr]               { @res = @fnn + @opr; $res = new FnCall($fnn,    $fna,           @res); }
+|                   expr_no_comma[lhs] "as"      expr_no_comma[rhs]                        { @res = @lhs + @rhs; $res = new  BinOp($lhs, op::AS,      $rhs, @res); }
+|                   IDENT[fnn] "("[lhs] expr[val] ")"[rhs]                                 { @res = @lhs + @rhs; $res = $val;                                      }
 /*|                   blck_stmt[val]                                                         { $res = $val;                                                                }*/
 |                   IDENT[id]                                                              { @res = @id;  $res = new Ident($id, @res);                             }
 |                   NUMBER[num]                                                            { @res = @num; $res = new Number($num, @res);                           }

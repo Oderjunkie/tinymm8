@@ -140,6 +140,17 @@ namespace ast {
                 void dump() const;
                 irast::Stmt* parse() const;
         };
+        class FnCall : public Node {
+              public:
+                yy::location loc;
+                Node* function;
+                std::vector<Node*> args;
+                FnCall();
+                FnCall(yy::location loc);
+                FnCall(Node* function, std::vector<Node*> args, yy::location loc);
+                void dump() const;
+                irast::Stmt* parse() const;
+        };
         class FnDecl : public Node {
               public:
                 typed_ident fnid;

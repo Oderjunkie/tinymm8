@@ -157,6 +157,21 @@ Null::Null(location loc) : loc(loc) {}
 void Null::dump() const { std::cout << "null"; }
 irast::Stmt* Null::parse() const { return new irast::Null(); }
 
+FnCall::FnCall() {}
+FnCall::FnCall(location loc) : loc(loc) {}
+FnCall::FnCall(Node* function, std::vector<Node*> args, location loc) : function(function), args(args), loc(loc) {}
+void FnCall::dump() const {
+        std::cout << "FnCall(";
+        this->function->dump();
+        std::cout << ", [";
+        for (auto const& arg : this->args) {
+                arg->dump();
+                std::cout << ",";
+        }
+        std::cout << "])";
+}
+irast::Stmt* FnCall::parse() const {}
+
 FnDecl::FnDecl() {}
 FnDecl::FnDecl(location loc) : loc(loc) {}
 FnDecl::FnDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Node* const& body, location loc) : fnid(fnid), args(args), body(body), loc(loc) {
