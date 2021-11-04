@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 using namespace ast; // Fight me =P
+using yy::location;
 
 bool is_unop_pre(op const& opr) {
         switch (opr) {
@@ -78,8 +79,8 @@ std::string op_to_str(op const& opr) {
 }
 
 TernOp::TernOp() {}
-TernOp::TernOp(yy::location loc) : loc(loc) {}
-TernOp::TernOp(Node* lhs, Node* mhs, Node* rhs, yy::location loc) : lhs(lhs), mhs(mhs), rhs(rhs), loc(loc) {
+TernOp::TernOp(location loc) : loc(loc) {}
+TernOp::TernOp(Node* lhs, Node* mhs, Node* rhs, location loc) : lhs(lhs), mhs(mhs), rhs(rhs), loc(loc) {
         if (this->lhs == nullptr || this->mhs == nullptr || this->rhs == nullptr) throw std::invalid_argument("Null pointer given to ast::TernOp.");
 }
 void TernOp::dump() const {
@@ -92,8 +93,8 @@ void TernOp::dump() const {
 irast::Stmt* TernOp::parse() const { return new irast::IfStmt(this->lhs->parse(), this->mhs->parse(), this->rhs->parse()); }
 
 BinOp::BinOp() {}
-BinOp::BinOp(yy::location loc) : loc(loc) {}
-BinOp::BinOp(Node* lhs, op opr, Node* rhs, yy::location loc) : lhs(lhs), opr(opr), rhs(rhs), loc(loc) {
+BinOp::BinOp(location loc) : loc(loc) {}
+BinOp::BinOp(Node* lhs, op opr, Node* rhs, location loc) : lhs(lhs), opr(opr), rhs(rhs), loc(loc) {
         if (this->lhs == nullptr || this->rhs == nullptr) throw std::invalid_argument("Null pointer given to ast::BinOp.");
 }
 void BinOp::dump() const {
@@ -104,8 +105,8 @@ void BinOp::dump() const {
 irast::Stmt* BinOp::parse() const { return new irast::Null(); }
 
 UnOp::UnOp() {}
-UnOp::UnOp(yy::location loc) : loc(loc) {}
-UnOp::UnOp(Node* val, op opr, yy::location loc) : val(val), opr(opr), loc(loc) {
+UnOp::UnOp(location loc) : loc(loc) {}
+UnOp::UnOp(Node* val, op opr, location loc) : val(val), opr(opr), loc(loc) {
         if (this->val == nullptr) throw std::invalid_argument("Null pointer given to ast::UnOp.");
 }
 void UnOp::dump() const {
@@ -117,8 +118,8 @@ void UnOp::dump() const {
 irast::Stmt* UnOp::parse() const { return new irast::Null(); }
 
 Block::Block() {}
-Block::Block(yy::location loc) : loc(loc) {}
-Block::Block(blck_stmt body, yy::location loc) : body(body), loc(loc) {
+Block::Block(location loc) : loc(loc) {}
+Block::Block(blck_stmt body, location loc) : body(body), loc(loc) {
         for (auto const& stmt : this->body)
                 if (stmt == nullptr) throw std::invalid_argument("Null pointer given to ast::Block.");
 }
@@ -134,31 +135,31 @@ irast::Stmt* Block::parse() const {
 }
 
 Ident::Ident() {}
-Ident::Ident(yy::location loc) : loc(loc) {}
-Ident::Ident(std::string ident, yy::location loc) : ident(ident), loc(loc) {}
+Ident::Ident(location loc) : loc(loc) {}
+Ident::Ident(std::string ident, location loc) : ident(ident), loc(loc) {}
 void Ident::dump() const { std::cout << this->ident; }
 irast::Stmt* Ident::parse() const { return new irast::Ident(this->ident); }
 
 Number::Number() {}
-Number::Number(yy::location loc) : loc(loc) {}
-Number::Number(int num, yy::location loc) : num(num), loc(loc) {}
+Number::Number(location loc) : loc(loc) {}
+Number::Number(int num, location loc) : num(num), loc(loc) {}
 void Number::dump() const { std::cout << this->num; }
 irast::Stmt* Number::parse() const { return new irast::Integer(this->num); }
 
 Return::Return() {}
-Return::Return(yy::location loc) : loc(loc) {}
-Return::Return(Node* retval, yy::location loc) : retval(retval), loc(loc) {}
+Return::Return(location loc) : loc(loc) {}
+Return::Return(Node* retval, location loc) : retval(retval), loc(loc) {}
 void Return::dump() const { std::cout << "return " << this->retval << ";"; }
 irast::Stmt* Return::parse() const { return new irast::ReturnStmt(this->retval->parse()); }
 
 Null::Null() {}
-Null::Null(yy::location loc) : loc(loc) {}
+Null::Null(location loc) : loc(loc) {}
 void Null::dump() const { std::cout << "null"; }
 irast::Stmt* Null::parse() const { return new irast::Null(); }
 
 FuncDecl::FuncDecl() {}
-FuncDecl::FuncDecl(yy::location loc) : loc(loc) {}
-FuncDecl::FuncDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Node* const& body, yy::location loc) : fnid(fnid), args(args), body(body), loc(loc) {
+FuncDecl::FuncDecl(location loc) : loc(loc) {}
+FuncDecl::FuncDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Node* const& body, location loc) : fnid(fnid), args(args), body(body), loc(loc) {
         if (this->body == nullptr) throw std::invalid_argument("Null pointer given to ast::FuncDecl.");
 }
 FuncDecl::FuncDecl(FuncDecl const& fndecl) { *this = fndecl; }
