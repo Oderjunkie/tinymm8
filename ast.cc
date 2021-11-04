@@ -163,7 +163,10 @@ FnDecl::FnDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, No
         if (this->body == nullptr) throw std::invalid_argument("Null pointer given to ast::FnDecl.");
 }
 FnDecl::FnDecl(FnDecl const& fndecl) { *this = fndecl; }
-FnDecl::~FnDecl()       = default;
+FnDecl::~FnDecl() {
+        delete this->body;
+        return;
+}
 FnDecl& FnDecl::operator=(FnDecl const& fndecl) {
         this->fnid = fndecl.fnid;
         this->args = fndecl.args;
