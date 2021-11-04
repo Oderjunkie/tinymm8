@@ -157,20 +157,20 @@ Null::Null(location loc) : loc(loc) {}
 void Null::dump() const { std::cout << "null"; }
 irast::Stmt* Null::parse() const { return new irast::Null(); }
 
-FuncDecl::FuncDecl() {}
-FuncDecl::FuncDecl(location loc) : loc(loc) {}
-FuncDecl::FuncDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Node* const& body, location loc) : fnid(fnid), args(args), body(body), loc(loc) {
-        if (this->body == nullptr) throw std::invalid_argument("Null pointer given to ast::FuncDecl.");
+FnDecl::FnDecl() {}
+FnDecl::FnDecl(location loc) : loc(loc) {}
+FnDecl::FnDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Node* const& body, location loc) : fnid(fnid), args(args), body(body), loc(loc) {
+        if (this->body == nullptr) throw std::invalid_argument("Null pointer given to ast::FnDecl.");
 }
-FuncDecl::FuncDecl(FuncDecl const& fndecl) { *this = fndecl; }
-FuncDecl::~FuncDecl()       = default;
-FuncDecl& FuncDecl::operator=(FuncDecl const& fndecl) {
+FnDecl::FnDecl(FnDecl const& fndecl) { *this = fndecl; }
+FnDecl::~FnDecl()       = default;
+FnDecl& FnDecl::operator=(FnDecl const& fndecl) {
         this->fnid = fndecl.fnid;
         this->args = fndecl.args;
         this->body = fndecl.body;
         return *this;
 }
-void FuncDecl::dump() const {
+void FnDecl::dump() const {
         auto const& [fntype, fnname] = this->fnid;
         std::cout << "\e[35m" << fntype << "\e[m \e[1;32m" << fnname << "\e[m(";
         for (auto const& arg : this->args) {
@@ -181,4 +181,4 @@ void FuncDecl::dump() const {
         this->body->dump();
         std::cout << "\n";
 }
-irast::Stmt* FuncDecl::parse() const { return new irast::Func(this->fnid, this->args, this->body->parse()); }
+irast::Stmt* FnDecl::parse() const { return new irast::Func(this->fnid, this->args, this->body->parse()); }

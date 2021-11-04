@@ -40,8 +40,8 @@
 %nterm<ast::TernOp*> if_stmt_open if_stmt_closed
 %nterm<ast::Block*> blck_stmt
 %nterm<ast::blck_stmt> expr_args_req expr_args stmt_list
-%nterm<ast::FuncDecl> funcdecl decl
-%nterm<std::vector<ast::FuncDecl>> library done
+%nterm<ast::FnDecl> funcdecl decl
+%nterm<std::vector<ast::FnDecl>> library done
 
 %code requires {
 #include <utility>
@@ -96,7 +96,7 @@ decl[res]: funcdecl[fn] { $res = $fn; @res = @fn; }
 
 funcdecl[res]: type_and_ident[ident] "(" args ")" stmt {
 	@res = @ident + @stmt;
-	$res = ast::FuncDecl($ident, $args, $stmt, @res);
+	$res = ast::FnDecl($ident, $args, $stmt, @res);
 }
 ;
 

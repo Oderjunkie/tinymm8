@@ -54,7 +54,7 @@ namespace ast {
         class Null;
         class Return;
         class Block;
-        class FuncDecl;
+        class FnDecl;
         using typed_ident = std::pair<std::string, std::string>;
         using blck_stmt   = std::vector<Node*>;
         class TernOp : public Node {
@@ -140,18 +140,18 @@ namespace ast {
                 void dump() const;
                 irast::Stmt* parse() const;
         };
-        class FuncDecl : public Node {
+        class FnDecl : public Node {
               public:
                 typed_ident fnid;
                 std::vector<typed_ident> args;
                 Node* body;
                 yy::location loc;
-                FuncDecl();
-                FuncDecl(yy::location loc);
-                FuncDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Node* const& body, yy::location loc);
-                FuncDecl(FuncDecl const& fndecl);
-                FuncDecl& operator=(FuncDecl const& fndecl);
-                ~FuncDecl();
+                FnDecl();
+                FnDecl(yy::location loc);
+                FnDecl(typed_ident const& fnid, std::vector<typed_ident> const& args, Node* const& body, yy::location loc);
+                FnDecl(FnDecl const& fndecl);
+                FnDecl& operator=(FnDecl const& fndecl);
+                ~FnDecl();
                 void dump() const;
                 irast::Stmt* parse() const;
         };
