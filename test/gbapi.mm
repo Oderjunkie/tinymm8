@@ -39,8 +39,8 @@ namespace gb {
         const u2 mode;    //     Bit 1-0 - Mode Flag (Read Only)                            -              1=Enable
     };
 
-    //
-    struct RP {
+    // https://gbdev.io/pandocs/CGB_Registers.html#ff56---rp---cgb-mode-only---infrared-communications-port
+    struct RP {              // FF56 - RP
 	      u1 write;      //     Bit 0   - Write Data (R/W)       - 0=LED Off,             1=LED On
         const u1 read;       //     Bit 1   - Read Data (R)          - 0=Receiving IR Signal, 1=Normal
         const u4;            //     Bit 2-5 - [unused] (R)           - 0=Low,                 1=High
@@ -55,6 +55,7 @@ namespace gb {
 	        writeonly u1 isHDMA; // HDMA5 - General Purpose DMA       - 0=General purpose, 1=HDMA (W)
     }
 
+    // https://gbdev.io/pandocs/Sound_Controller.html@sound-channel-1---tone--sweep
     struct CH1 {
                   u3 sweepSpeed;        // NR10        - Number of sweep shift (R/W)         - n=0-7
                   u1 sweepDir;          // NR10        - Sweep Increase/Decrease (R/W)       - 0=Addition, 1=Subtraction
@@ -79,7 +80,7 @@ namespace gb {
                                                            // D000 -> DFFF Work RAM (Banked for CGB)
                                                            // E000 -> FDFF ECHO ram (not assigned)
     Object[40] sprite =         (0xFE00 as Object*);       // FE00 -> FE9F OAM
-                                                           // FEA0 -> FEFF
+                                                           // FEA0 -> FEFF (not assigned)
                                                            // FF00 -> FF3F P1, SB, SC, DIV, TIMA, TMA, TAC, IF
     CH1 ch1 =                  *(0xFF10 as CH1*)           // FF10 -> FF14 Sound Controller CH1
 	                                                   // FF15 -> FF15 Unused (not assigned)
@@ -95,7 +96,7 @@ namespace gb {
     u8 wx =                    *(0xFF4B as u8*);           // FF4B -> FF4B Window X position
                                                            // FF4C -> FF4C KEY0 (not assigned)
                                                            // FF4D -> FF4D KEY1 (not assigned)
-                                                           // FF4E -> FF4E unused (not assigned lol)
+                                                           // FF4E -> FF4E Unused (not assigned)
     u8 vbk =                   *(0xFF4F as u8*);           // FF4F -> FF4F Vram BanK (CGB)
     u8 bank =                  *(0xFF50 as u8*);           // FF50 -> FF50 BANK
     VDMATransfer dma =         *(0xFF51 as VDMATransfer*); // FF51 -> FF55 Direct Memory Access
