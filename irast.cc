@@ -9,9 +9,8 @@
 #define BREAKPOINT raise(SIGINT)
 
 /*
- * Some info about my naming convention:
- * Local Variables are represented as @NAME%COUNT, where COUNT is an
- * incrementing value.
+ * Some info about the naming convention:
+ * Local Variables are represented as NAME@COUNT, where COUNT is an incrementing value.
  * Temporary Variables are represented as just %COUNT.
  */
 
