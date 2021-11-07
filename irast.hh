@@ -138,6 +138,20 @@ namespace irast {
                 std::string dump() const;
                 std::string type() const;
         };
+        class FnCall : public Stmt {
+              protected:
+                int tempvar;
+
+              public:
+                Stmt* name;
+                std::vector<Stmt*> args;
+                FnCall();
+                FnCall(FnCall const& fncall);
+                FnCall(Stmt* name, std::vector<Stmt*> args);
+                std::pair<std::string, std::string> emit() const;
+                std::string dump() const;
+                std::string type() const;
+        };
         class Comment : public Stmt {
               public:
                 std::string content;

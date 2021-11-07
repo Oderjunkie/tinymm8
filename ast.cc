@@ -170,7 +170,11 @@ void FnCall::dump() const {
         }
         std::cout << "])";
 }
-irast::Stmt* FnCall::parse() const {}
+irast::Stmt* FnCall::parse() const {
+        std::vector<irast::Stmt*> newargs;
+        std::transform(this->args.cbegin(), this->args.cend(), newargs.begin(), [](Node* const& arg) { return arg->parse(); });
+        return new irast::FnCall(this->function->parse(), newargs);
+}
 
 FnDecl::FnDecl() {}
 FnDecl::FnDecl(location loc) : loc(loc) {}

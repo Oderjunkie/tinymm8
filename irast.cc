@@ -429,6 +429,37 @@ string BlockStmt::dump() const {
 }
 string BlockStmt::type() const { return "void"; }
 
+FnCall::FnCall() {}
+FnCall::FnCall(FnCall const& fncall) { *this = fncall; }
+FnCall::FnCall(Stmt* name, vector<Stmt*> args) : name(name), args(args) {
+        try {
+                auto& [name, frame] = call_stack.back();
+                auto& [type, count] = frame.at(name);
+                this->tempvar       = count++;
+        } catch (std::out_of_range const& ex) { BREAKPOINT; }
+}
+pair<string, string> FnCall::emit() const {
+        std::stringstream output;
+        std::stringstream temp;
+        auto const& [nameprep, name] = this->name->emit();
+        output << nameprep;
+        temp << this->type() << " %" << this->tempvar;
+        temp << " = " << name << "(";
+        for (auto const& arg : this->args) {
+                auto const& [argprep, argname] = arg->emit();
+                output << argprep;
+                temp << argname << ", ";
+        }
+        temp.seekp(-2, std::ios_base::end);
+        temp << ");";
+        output << temp.str();
+        return std::make_pair(output.str(), "%" + this->tempvar);
+}
+
+string FnCall::dump() const { return "FnCall()"; }
+
+string FnCall::type() const { return this->name->type(); }
+
 /*optional<Stmt*> irast::parseexpr(ast::Expression const& expr) {
         switch (expr.type) {
         case ast::exprtype::BINOP:
