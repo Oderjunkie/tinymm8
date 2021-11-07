@@ -232,7 +232,7 @@ pair<string, string> Func::emit() const {
         output << "\e[35m" << fntype << "\e[m \e[1;32m" << fnname << "\e[m(";
         for (auto const& arg : this->args) {
                 auto const& [argtype, argname] = arg;
-                output_args << "\e[35m" << argtype << "\e[m @\e[1;32m" << argname << "\e[m%0, ";
+                output_args << "\e[35m" << argtype << "\e[m \e[1;32m" << argname << "\e[m@0, ";
         };
         auto output_string_args        = output_args.str();
         auto output_string_args_length = output_string_args.size();
