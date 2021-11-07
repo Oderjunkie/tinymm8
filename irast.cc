@@ -228,10 +228,10 @@ Func::Func(pair<string, string> fnsig, vector<pair<string, string>> args, Stmt* 
 pair<string, string> Func::emit() const {
         std::stringstream output;
         std::stringstream output_args;
-        auto const& [fnname, fntype] = this->fnsig;
+        auto const& [fntype, fnname] = this->fnsig;
         output << "\e[35m" << fntype << "\e[m \e[1;32m" << fnname << "\e[m(";
         for (auto const& arg : this->args) {
-                auto const& [argname, argtype] = arg;
+                auto const& [argtype, argname] = arg;
                 output_args << "\e[35m" << argtype << "\e[m @\e[1;32m" << argname << "\e[m%0, ";
         };
         auto output_string_args        = output_args.str();
