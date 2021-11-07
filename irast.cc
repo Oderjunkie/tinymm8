@@ -236,9 +236,8 @@ pair<string, string> Func::emit() const {
         auto output_string_args        = output_args.str();
         auto output_string_args_length = output_string_args.size();
         if (output_string_args_length) output_string_args.erase(output_string_args_length - 2);
-        output << output_string_args << ") {" << std::endl;
-        this->body->emit();
-        output << "}" << std::endl;
+        auto const& [bodyprep, bodyname] = this->body->emit();
+        output << output_string_args << ") {" << std::endl << bodyprep << "}" << std::endl;
         return std::make_pair(output.str(), fnname);
 }
 
