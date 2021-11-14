@@ -140,7 +140,7 @@ void BinOp::dump() const {
         std::cout << " " << op_to_str(this->opr) << " ";
         this->rhs->dump();
 }
-irast::Stmt* BinOp::parse() const { return new irast::Null(); }
+irast::Stmt* BinOp::parse() const { return new irast::Arithmetic(this->lhs->parse(), astop2irop(this->opr), this->rhs->parse()); }
 
 UnOp::UnOp() {}
 UnOp::UnOp(location loc) : loc(loc) {}
