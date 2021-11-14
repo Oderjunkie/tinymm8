@@ -187,8 +187,22 @@ irast::Stmt* Number::parse() const { return new irast::Integer(this->num); }
 Return::Return() {}
 Return::Return(location loc) : loc(loc) {}
 Return::Return(Node* retval, location loc) : retval(retval), loc(loc) {}
-void Return::dump() const { std::cout << "return " << this->retval << ";"; }
-irast::Stmt* Return::parse() const { return new irast::ReturnStmt(this->retval->parse()); }
+void Return::dump() const {
+        if (this->retval) {
+                std::cout << "return;";
+        } else {
+                std::cout << "return ";
+                this->retval->dump();
+                std::cout << ";";
+        }
+}
+irast::Stmt* Return::parse() const {
+        if (this->retval)
+
+                return new irast::ReturnStmt(this->retval->parse());
+        else
+                return new irast::ReturnStmt();
+}
 
 Null::Null() {}
 Null::Null(location loc) : loc(loc) {}
