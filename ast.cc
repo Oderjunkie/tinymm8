@@ -78,6 +78,44 @@ std::string op_to_str(op const& opr) {
         return "This message should not appear. What should i do if it does...?";
 }
 
+irast::Operator astop2irop(op opr) {
+        switch (opr) {
+        case ast::op::LNOT: return irast::Operator::LNOT;
+        case ast::op::DEREF: return irast::Operator::DEREF;
+        case ast::op::ADROF: return irast::Operator::ADDROF;
+        // case ast::op::UNPLUS: return irast::Operator::UNPLUS;
+        case ast::op::UNMINUS:
+                return irast::Operator::UMINUS;
+                // case ast::op::PREINC: return irast::Operator::PREINC;
+                // case ast::op::PREDEC: return irast::Operator::PREDEC:
+                // case ast::op::POSTINC: return irast::Operator::POSTINC;
+                // case ast::op::POSTDEC: return irast::Operator::POSTDEC:
+                // case ast::op::COMMA: return irast::Operator::COMMA;
+        case ast::op::TIMES: return irast::Operator::TIMES;
+        case ast::op::OVER: return irast::Operator::OVER;
+        case ast::op::PLUS: return irast::Operator::PLUS;
+        case ast::op::MINUS: return irast::Operator::MINUS;
+        // case ast::op::ASSGN: return irast::Operator::ASSGN;
+        case ast::op::EQ: return irast::Operator::EQ;
+        case ast::op::NEQ: return irast::Operator::NEQ;
+        case ast::op::GT: return irast::Operator::GT;
+        case ast::op::GTE: return irast::Operator::GTE;
+        case ast::op::LT: return irast::Operator::LT;
+        case ast::op::LTE: return irast::Operator::LTE;
+        case ast::op::MOD: return irast::Operator::MOD;
+        case ast::op::BAND: return irast::Operator::BAND;
+        case ast::op::BOR: return irast::Operator::BOR;
+        case ast::op::BXOR: return irast::Operator::BXOR;
+        case ast::op::LAND: return irast::Operator::LAND;
+        case ast::op::LOR: return irast::Operator::LOR;
+        // case ast::op::CALL: return irast::Operator::CALL;
+        // case ast::op::TERN: return irast::Operator::TERN;
+        // case ast::op::AS: return irast::Operator::AS;
+        default: throw std::invalid_argument("Can't convert to IR operator.");
+        }
+        return irast::Operator::PLUS;
+}
+
 TernOp::TernOp() {}
 TernOp::TernOp(location loc) : loc(loc) {}
 TernOp::TernOp(Node* lhs, Node* mhs, Node* rhs, location loc) : lhs(lhs), mhs(mhs), rhs(rhs), loc(loc) {
