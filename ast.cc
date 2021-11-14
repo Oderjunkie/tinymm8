@@ -252,4 +252,16 @@ void FnDecl::dump() const {
         this->body->dump();
         std::cout << "\n";
 }
-irast::Stmt* FnDecl::parse() const { return new irast::Func(this->fnid, this->args, this->body->parse()); }
+irast::Stmt* FnDecl::parse() const {
+        auto const& [fntype, fnname] = this->fnid;
+        std::unordered_map<std::string, irast::Symbol> fnlocals;
+        for (auto const& arg : this->args) {
+                auto const& [atype, aname] = arg;
+                fnlocals.insert({aname, std::make_tuple(atype, 0)});
+        }
+        fnlocals.insert({fnname, std::make_tuple(fntype, 0)});
+        irast::call_stack.push_back({fnname, fnlocals});
+        auto returned = new irast::Func(this->fnid, this->args, new irast::ReturnStmt(this->body->parse()));
+        irast::call_stack.pop_back();
+        return returned;
+}
