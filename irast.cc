@@ -298,12 +298,14 @@ pair<string, string> ReturnStmt::emit() const {
         std::stringstream output;
         if (this->retval) {
                 auto const& [prep, name] = this->retval.value()->emit();
+		if (name == "\eRETURN")
+		  return std::make_pair(prep, name);
                 output << prep << "return " << name << ";";
         } else {
                 output << "return;";
         }
         output << std::endl;
-        return std::make_pair(output.str(), "");
+        return std::make_pair(output.str(), "\eRETURN");
 }
 string ReturnStmt::dump() const {
         std::stringstream output;
