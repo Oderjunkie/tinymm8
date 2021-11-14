@@ -153,7 +153,7 @@ void UnOp::dump() const {
         this->val->dump();
         if (!ispre) std::cout << op_to_str(this->opr);
 }
-irast::Stmt* UnOp::parse() const { return new irast::Null(); }
+irast::Stmt* UnOp::parse() const { return new irast::Arithmetic(this->val->parse(), astop2irop(this->opr)); }
 
 Block::Block() {}
 Block::Block(location loc) : loc(loc) {}
