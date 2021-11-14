@@ -249,8 +249,10 @@ string Func::dump() const {
                 auto const& [argname, argtype] = arg;
                 output << "{\"" << argname << "\", \"" << argtype << "\"},";
         };
-        output << "], [";
+	output.seekp(-2, std::ios_base::end);
+        output << "], ";
         output << this->body->dump();
+	output << ")";
         return output.str();
 }
 
