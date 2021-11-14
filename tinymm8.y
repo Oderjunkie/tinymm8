@@ -69,9 +69,9 @@ done[res]: library[val] YYEOF {
 	@res = @val;
 	$res = $val;
 	std::vector<irast::Stmt*> funcs; // absolute hack, TODO: get rid of this pointer
-	for (FuncDecl& fndecl : $res) {
-		funcs.push_back(irast::parsefn(fndecl));
-	});
+	for (FnDecl& fndecl : $res) {
+		funcs.push_back(fndecl.parse());
+	};
 	std::ofstream output;
 	if (driver::pipe_mode)
 		output.open("a.out");
