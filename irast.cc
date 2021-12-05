@@ -391,7 +391,6 @@ pair<string, string> Condition::emit() const {
         auto const& [lhsprep, lhsname] = this->lhs->emit();
         auto const& [rhsprep, rhsname] = this->rhs->emit();
         prep << lhsprep << rhsprep << "%" << this->tempvar;
-        auto name = prep.str();
         prep << " = " << lhsname << " - " << rhsname << ";" << std::endl;
         switch (this->op) {
         case Operator::EQ: cond = "==0";
