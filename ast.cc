@@ -168,7 +168,7 @@ void Block::dump() const {
 }
 irast::Stmt* Block::parse() const {
         std::vector<irast::Stmt*> newbody;
-        std::transform(this->body.cbegin(), this->body.cend(), newbody.begin(), [](Node* const& stmt) { return stmt->parse(); });
+        std::transform(this->body.cbegin(), this->body.cend(), back_inserter(newbody), [](Node* const& stmt) { return stmt->parse(); });
         return new irast::BlockStmt(newbody);
 }
 
@@ -224,7 +224,7 @@ void FnCall::dump() const {
 }
 irast::Stmt* FnCall::parse() const {
         std::vector<irast::Stmt*> newargs;
-        std::transform(this->args.cbegin(), this->args.cend(), newargs.begin(), [](Node* const& arg) { return arg->parse(); });
+        std::transform(this->args.cbegin(), this->args.cend(), back_inserter(newargs), [](Node* const& arg) { return arg->parse(); });
         return new irast::FnCall(this->function->parse(), newargs);
 }
 
