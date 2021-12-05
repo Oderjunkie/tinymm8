@@ -71,6 +71,29 @@ namespace gb {
                   u1 counter;           // NR14        - Counter/Consecutive selection (R/W) - 1=Stop output when length in NR11 expires
         writeonly u1 initial;           // NR14        - Initial (R)                         - 1=Restart Sound
     }
+
+    // https://gbdev.io/pandocs/Sound_Controller.html@sound-channel-2---tone
+    struct CH2 {
+        writeonly u6 soundLength;       // NR21        - Sound length data (W) - t1=0-63
+                  u2 duty;              // NR21        - Wave Pattern Duty (R/W)
+                  u3 envelopeSpeed;     // NR22        - envelope speed
+                  u1 envelopeDir;       // NR22        - envelope direction
+                  u4 envelopeVolume;    // NR22        - envelope initial volume
+        writeonly u11 freq;             // NR23 / NR24 - frequency
+            const u3;                   // NR24        - bits 3-5 unused
+                  u1 counter;           // NR24        - counter/consecutive selection
+        writeonly u1 initial;           // NR24        - initial
+    }
+
+    // https://gbdev.io/pandocs/Sound_Controller.html@sound-channel-3---wave-output
+    struct CH3 {
+        u1 off; // NR30 - Sound Channel 3 Off (R/W) - 0=Stop, 1=Playback
+    }
+
+    struct SCR {
+        // NR50 - Selection of Sound output terminal (R/W)
+	//     
+    }
     
     u8[16][128][3] tileData =   (0x8000 as u8***);         // 8000 -> 97FF Video RAM Tile Data
     u8[8][8] tileMapA =         (0x9800 as u8**);          // 9800 -> 9BFF Video RAM Tile Map A
@@ -84,6 +107,11 @@ namespace gb {
                                                            // FF00 -> FF3F P1, SB, SC, DIV, TIMA, TMA, TAC, IF
     CH1 ch1 =                  *(0xFF10 as CH1*)           // FF10 -> FF14 Sound Controller CH1
 	                                                   // FF15 -> FF15 Unused (not assigned)
+    CH2 ch2 =                  *(0xFF16 as CH2*)           // FF16 -> FF19 Sound Controller CH2
+    CH3 ch3 =                  *(0xFF10 as CH3*)           // FF1A -> FF1E Sound Controller CH3
+	                                                   // FF1F -> FF1F Unused (not assigned)
+    CH4 ch4 =                  *(0xFF10 as CH4*)           // FF20 -> FF23 Sound Controller CH4
+    SCR scr =                  *(0xFF24 as SCR*)           // FF24 -> FF24 Sound Registers
     LCDC lcdc =                *(0xFF40 as LCDC*);         // FF40 -> FF40 LCD Control
     STAT stat =                *(0xFF41 as STAT*);         // FF41 -> FF41 lcd STATus
     u8 scy =                   *(0xFF42 as u8*);           // FF42 -> FF42 SCroll Y
